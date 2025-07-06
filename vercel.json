@@ -2,18 +2,25 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/server.py",
+      "src": "public/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/server.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/server.py"
+      "dest": "/api/server.py"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/index.html"
+      "dest": "/public/$1"
     }
-  ]
+  ],
+  "env": {
+    "GOOGLE_API_KEY": "@google_api_key"
+  }
 }

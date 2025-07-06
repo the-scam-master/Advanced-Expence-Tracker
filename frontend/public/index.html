@@ -1,151 +1,301 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <meta name="description" content="Smart Expense Tracker with AI-powered insights, budget management, and spending analytics. Track your expenses beautifully with dark theme." />
-        <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-        <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Smart Expense Tracker - Track, Analyze & Optimize</title>
+    <meta name="description" content="Smart Expense Tracker with AI-powered insights, budget management, and spending analytics. Track your expenses beautifully with dark theme.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/index.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>💰 Smart Expense Tracker</h1>
+            <p class="subtitle">Track, Analyze, and Optimize Your Spending with AI</p>
+        </header>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-        <title>💰 Smart Expense Tracker - Track, Analyze & Optimize</title>
-    </head>
-    <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div id="root"></div>
-        <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-        <a
-            id="emergent-badge"
-            target="_blank"
-            href="https://app.emergent.sh/?utm_source=emergent-badge"
-            style="
-                display: flex !important;
-                align-items: center !important;
-                position: fixed !important;
-                bottom: 20px;
-                right: 20px;
-                text-decoration: none;
-                padding: 6px 10px;
-                font-family: -apple-system, BlinkMacSystemFont,
-                    &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu, Cantarell,
-                    &quot;Open Sans&quot;, &quot;Helvetica Neue&quot;,
-                    sans-serif !important;
-                font-size: 12px !important;
-                z-index: 9999 !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-                border-radius: 8px !important;
-                background-color: #ffffff !important;
-                border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            "
-        >
-            <div
-                style="display: flex; flex-direction: row; align-items: center"
-            >
-                <img
-                    style="width: 20px; height: 20px; margin-right: 8px"
-                    src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4"
-                />
-                <p
-                    style="
-                        color: #000000;
-                        font-family: -apple-system, BlinkMacSystemFont,
-                            &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu,
-                            Cantarell, &quot;Open Sans&quot;,
-                            &quot;Helvetica Neue&quot;, sans-serif !important;
-                        font-size: 12px !important;
-                        align-items: center;
-                        margin-bottom: 0;
-                    "
-                >
-                    Made with Emergent
-                </p>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Total Expenses</p>
+                        <p class="stat-value" id="total-expenses">$0.00</p>
+                    </div>
+                    <i class="fas fa-dollar-sign stat-icon blue"></i>
+                </div>
             </div>
-        </a>
-        <script>
-            !(function (t, e) {
-                var o, n, p, r;
-                e.__SV ||
-                    ((window.posthog = e),
-                    (e._i = []),
-                    (e.init = function (i, s, a) {
-                        function g(t, e) {
-                            var o = e.split(".");
-                            2 == o.length && ((t = t[o[0]]), (e = o[1])),
-                                (t[e] = function () {
-                                    t.push(
-                                        [e].concat(
-                                            Array.prototype.slice.call(
-                                                arguments,
-                                                0,
-                                            ),
-                                        ),
-                                    );
-                                });
-                        }
-                        ((p = t.createElement("script")).type =
-                            "text/javascript"),
-                            (p.crossOrigin = "anonymous"),
-                            (p.async = !0),
-                            (p.src =
-                                s.api_host.replace(
-                                    ".i.posthog.com",
-                                    "-assets.i.posthog.com",
-                                ) + "/static/array.js"),
-                            (r =
-                                t.getElementsByTagName(
-                                    "script",
-                                )[0]).parentNode.insertBefore(p, r);
-                        var u = e;
-                        for (
-                            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
-                                u.people = u.people || [],
-                                u.toString = function (t) {
-                                    var e = "posthog";
-                                    return (
-                                        "posthog" !== a && (e += "." + a),
-                                        t || (e += " (stub)"),
-                                        e
-                                    );
-                                },
-                                u.people.toString = function () {
-                                    return u.toString(1) + ".people (stub)";
-                                },
-                                o =
-                                    "init me ws ys ps bs capture je Di ks register register_once register_for_session unregister unregister_for_session Ps getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Es $s createPersonProfile Is opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Ss debug xs getPageViewId captureTraceFeedback captureTraceMetric".split(
-                                        " ",
-                                    ),
-                                n = 0;
-                            n < o.length;
-                            n++
-                        )
-                            g(u, o[n]);
-                        e._i.push([i, s, a]);
-                    }),
-                    (e.__SV = 1));
-            })(document, window.posthog || []);
-            posthog.init("phc_yJW1VjHGGwmCbbrtczfqqNxgBDbhlhOWcdzcIJEOTFE", {
-                api_host: "https://us.i.posthog.com",
-                person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-            });
-        </script>
-    </body>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">This Month</p>
+                        <p class="stat-value" id="month-expenses">$0.00</p>
+                    </div>
+                    <i class="fas fa-calendar stat-icon green"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">Categories</p>
+                        <p class="stat-value" id="categories-count">0</p>
+                    </div>
+                    <i class="fas fa-chart-pie stat-icon purple"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <p class="stat-label">AI Insights</p>
+                        <p class="stat-value" id="insights-count">0</p>
+                    </div>
+                    <i class="fas fa-brain stat-icon pink"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Alerts -->
+        <div id="budget-alerts" class="budget-alerts hidden">
+            <div class="alert-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Budget Alerts</h3>
+            </div>
+            <div id="alerts-container"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="add-expense-btn" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Add Expense
+            </button>
+            <button id="export-btn" class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Export Data
+            </button>
+            <label class="btn btn-secondary" for="import-file">
+                <i class="fas fa-upload"></i>
+                Import Data
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </label>
+            <button id="predict-btn" class="btn btn-ai">
+                <i class="fas fa-magic"></i>
+                AI Predict
+            </button>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Expense List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-calendar"></i> Expense History</h2>
+                        <select id="month-selector"></select>
+                    </div>
+                    <div id="expense-list-container">
+                        <div class="empty-state">
+                            <i class="fas fa-dollar-sign empty-icon"></i>
+                            <p>No expenses found for this month</p>
+                            <small>Start by adding your first expense</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-bar"></i> Analytics Dashboard</h2>
+                    </div>
+                    <div id="analytics-container">
+                        <div class="analytics-grid">
+                            <div class="analytics-item">
+                                <i class="fas fa-dollar-sign analytics-icon blue"></i>
+                                <div>
+                                    <h3>Total Spending</h3>
+                                    <p id="analytics-total">$0.00</p>
+                                    <small>All time expenses</small>
+                                </div>
+                            </div>
+                            <div class="analytics-item">
+                                <i class="fas fa-trending-up analytics-icon green"></i>
+                                <div>
+                                    <h3>Top Category</h3>
+                                    <p id="analytics-top-category">None</p>
+                                    <small id="analytics-top-amount">$0.00</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="monthly-breakdown"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Expense Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-pie"></i> Expense Breakdown</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="expense-chart"></canvas>
+                        <div id="chart-empty" class="empty-state">
+                            <i class="fas fa-chart-pie empty-icon"></i>
+                            <p>No data to display</p>
+                            <small>Add expenses to see the breakdown</small>
+                        </div>
+                    </div>
+                    <div id="category-summary"></div>
+                </div>
+
+                <!-- Budget Manager -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bullseye"></i> Budget Manager</h2>
+                        <button id="add-budget-btn" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i>
+                            Add Budget
+                        </button>
+                    </div>
+                    <div id="budget-form" class="budget-form hidden">
+                        <h3>Add New Budget</h3>
+                        <select id="budget-category">
+                            <option value="">Select Category</option>
+                        </select>
+                        <input type="number" id="budget-amount" placeholder="Budget amount" step="0.01" min="0">
+                        <select id="budget-period">
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                        <div class="budget-buttons">
+                            <button id="cancel-budget" class="btn btn-secondary">Cancel</button>
+                            <button id="save-budget" class="btn btn-primary">Add Budget</button>
+                        </div>
+                    </div>
+                    <div id="budget-list">
+                        <div class="empty-state">
+                            <i class="fas fa-bullseye empty-icon"></i>
+                            <p>No budgets set</p>
+                            <small>Create budgets to track your spending</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-brain"></i> AI Insights</h2>
+                        <button id="refresh-insights" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="ai-insights">
+                        <div class="empty-state">
+                            <i class="fas fa-brain empty-icon"></i>
+                            <p>No insights available</p>
+                            <small>Add more expenses to get AI-powered insights</small>
+                        </div>
+                    </div>
+                    <div id="prediction-result" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Expense Modal -->
+        <div id="expense-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Expense</h2>
+                    <button id="close-modal" class="close-btn">&times;</button>
+                </div>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="expense-name">
+                            <i class="fas fa-file-text"></i>
+                            Expense Name *
+                        </label>
+                        <input type="text" id="expense-name" required placeholder="e.g., Coffee, Groceries, Gas">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-amount">
+                            <i class="fas fa-dollar-sign"></i>
+                            Amount *
+                        </label>
+                        <input type="number" id="expense-amount" required step="0.01" min="0" placeholder="0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-date">
+                            <i class="fas fa-calendar"></i>
+                            Date *
+                        </label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-category">
+                            <i class="fas fa-tag"></i>
+                            Category *
+                        </label>
+                        <div class="category-input">
+                            <select id="expense-category" required>
+                                <option value="">Select category</option>
+                                <option value="Food">Food</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Bills">Bills</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Housing">Housing</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Health">Health</option>
+                                <option value="Education">Education</option>
+                                <option value="Personal Care">Personal Care</option>
+                                <option value="Savings">Savings</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <button type="button" id="suggest-category" class="btn btn-ai btn-sm">
+                                <i class="fas fa-magic"></i>
+                                AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-description">Description (optional)</label>
+                        <textarea id="expense-description" placeholder="Add a note about this expense..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" id="cancel-expense" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
 </html>

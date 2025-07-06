@@ -15,9 +15,14 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # Configure Google Gemini
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
-if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    logging.error("GOOGLE_API_KEY is not set in the environment variables.")
+else:
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+    except Exception as e:
+        logging.error(f"Failed to configure Google Generative AI: {e}")
 
 # Create the main app
 app = FastAPI(title="Expense Tracker API", version="1.0.0")
@@ -29,7 +34,7 @@ api_router = APIRouter(prefix="/api")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=["*"],  # TODO: Restrict to your frontend domain in production
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -82,15 +87,14 @@ class AIExpenseService:
 
     async def predict_next_month_expenses(self, expenses: List[Expense]) -> AIInsight:
         """Predict next month's expenses using AI"""
+        if not self.model:
+            return AIInsight(
+                type="prediction",
+                message="AI service not available. Please check if GOOGLE_API_KEY is set.",
+                confidence=0.0,
+                data={"predicted_amount": 0}
+            )
         try:
-            if not self.model:
-                return AIInsight(
-                    type="prediction",
-                    message="AI service not available. Please set GOOGLE_API_KEY in .env file.",
-                    confidence=0.0,
-                    data={"predicted_amount": 0}
-                )
-
             # Prepare expense data for analysis
             expense_data = []
             for expense in expenses:
@@ -146,9 +150,9 @@ class AIExpenseService:
 
     async def categorize_expense(self, expense_name: str, amount: float) -> str:
         """Suggest expense category using AI"""
+        if not self.model:
+            return "Other"
         try:
-            if not self.model:
-                return "Other"
             prompt = f"""
             Categorize this expense: "{expense_name}" (Amount: ${amount})
 
@@ -167,10 +171,9 @@ class AIExpenseService:
 
     async def get_spending_insights(self, expenses: List[Expense]) -> List[AIInsight]:
         """Get AI-powered spending insights"""
+        if not self.model or not expenses:
+            return []
         try:
-            if not self.model or not expenses:
-                return []
-
             insights = []
 
             # Top spending category
@@ -301,7 +304,7 @@ app.include_router(api_router)
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+ veins    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 

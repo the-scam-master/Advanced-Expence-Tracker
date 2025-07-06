@@ -77,9 +77,9 @@ class AIExpenseService:
         self.model = None
         if GOOGLE_API_KEY:
             try:
-                self.model = genai.GenerativeModel('gemini-pro')
+                self.model = genai.GenerativeModel('gemma-2-27b-it')
             except Exception as e:
-                logging.error(f"Failed to initialize Gemini model: {e}")
+                logging.error(f"Failed to initialize Gemma model: {e}")
 
     async def predict_next_month_expenses(self, expenses: List[Expense]) -> AIInsight:
         """Predict next month's expenses using AI"""

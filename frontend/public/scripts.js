@@ -297,7 +297,7 @@ async function predictExpenses() {
         // Display prediction
         const predictionResult = document.getElementById('prediction-result');
         predictionResult.innerHTML = `
-            <div class="budget-item" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
+            <div class="budget-item">
                 <div class="budget-header">
                     <div class="budget-info">
                         <h3><i class="fas fa-chart-line"></i> Next Month Prediction</h3>
@@ -314,7 +314,7 @@ async function predictExpenses() {
                         ${Object.entries(prediction.data.category_breakdown).map(([cat, amt]) => 
                             `<div style="display: flex; justify-content: space-between;">
                                 <span style="color: var(--text-muted);">${cat}</span>
-                                <span style="color: var(--text-primary); font-weight: 500;">$${amt.toFixed(2)}</span>
+                                <span style="color: var(--text-primary); font-weight: 500;">₹${amt.toFixed(2)}</span>
                             </div>`
                         ).join('')}
                     </div>` : ''
@@ -355,7 +355,7 @@ async function refreshInsights() {
         const insightsContainer = document.getElementById('ai-insights');
         if (insights.length > 0) {
             insightsContainer.innerHTML = insights.map(insight => `
-                <div class="budget-item" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3);">
+                <div class="budget-item">
                     <div class="budget-header">
                         <div class="budget-info">
                             <h3><i class="fas fa-lightbulb"></i> ${insight.type.charAt(0).toUpperCase() + insight.type.slice(1)}</h3>
@@ -368,7 +368,7 @@ async function refreshInsights() {
                             ${Object.entries(insight.data).map(([key, value]) => 
                                 `<div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
                                     <span style="color: var(--text-muted); text-transform: capitalize;">${key.replace(/_/g, ' ')}:</span>
-                                    <span style="color: var(--text-primary);">${typeof value === 'number' && (key.includes('amount') || key.includes('spending')) ? '$' + value.toFixed(2) : value}</span>
+                                    <span style="color: var(--text-primary);">${typeof value === 'number' && (key.includes('amount') || key.includes('spending')) ? '₹' + value.toFixed(2) : value}</span>
                                 </div>`
                             ).join('')}
                         </div>` : ''
@@ -378,6 +378,12 @@ async function refreshInsights() {
             
             // Update insights count
             document.getElementById('insights-count').textContent = insights.length;
+        } else {
+            insightsContainer.innerHTML = `<div class="empty-state">
+                <i class="fas fa-brain empty-icon"></i>
+                <p>No new insights found</p>
+            </div>`;
+            document.getElementById('insights-count').textContent = 0;
         }
         
         showToast('Insights refreshed!');
@@ -445,19 +451,17 @@ function updateStats() {
     const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     const categoriesCount = new Set(expenses.map(e => e.category)).size;
     
-    document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-    document.getElementById('month-expenses').textContent = `$${monthlyTotal.toFixed(2)}`;
+    document.getElementById('total-expenses').textContent = `₹${totalExpenses.toFixed(2)}`;
+    document.getElementById('month-expenses').textContent = `₹${monthlyTotal.toFixed(2)}`;
     document.getElementById('categories-count').textContent = categoriesCount;
     
-    // Update analytics
     updateAnalytics();
 }
 
 function updateAnalytics() {
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    document.getElementById('analytics-total').textContent = `$${totalExpenses.toFixed(2)}`;
+    document.getElementById('analytics-total').textContent = `₹${totalExpenses.toFixed(2)}`;
     
-    // Top category
     const categoryTotals = {};
     expenses.forEach(expense => {
         categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
@@ -467,10 +471,12 @@ function updateAnalytics() {
     if (sortedCategories.length > 0) {
         const [topCategory, topAmount] = sortedCategories[0];
         document.getElementById('analytics-top-category').textContent = topCategory;
-        document.getElementById('analytics-top-amount').textContent = `$${topAmount.toFixed(2)}`;
+        document.getElementById('analytics-top-amount').textContent = `₹${topAmount.toFixed(2)}`;
+    } else {
+        document.getElementById('analytics-top-category').textContent = 'None';
+        document.getElementById('analytics-top-amount').textContent = `₹0.00`;
     }
     
-    // Monthly breakdown
     const monthlyBreakdown = document.getElementById('monthly-breakdown');
     const monthlyData = {};
     
@@ -487,21 +493,23 @@ function updateAnalytics() {
     
     if (sortedMonths.length > 0) {
         monthlyBreakdown.innerHTML = `
-            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Monthly Breakdown</h3>
+            <h3 style="color: var(--text-secondary); margin-bottom: 1rem;">Monthly Breakdown</h3>
             ${sortedMonths.map(([month, data]) => `
                 <div class="budget-item">
                     <div class="budget-header">
                         <div class="budget-info">
-                            <h3>${new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                            <h3>${new Date(month + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
                         </div>
                         <div class="budget-stats">
-                            <div class="budget-amount">$${data.total.toFixed(2)}</div>
+                            <div class="budget-amount">₹${data.total.toFixed(2)}</div>
                             <small>${data.count} expenses</small>
                         </div>
                     </div>
                 </div>
             `).join('')}
         `;
+    } else {
+        monthlyBreakdown.innerHTML = '';
     }
 }
 
@@ -517,7 +525,7 @@ function populateMonthSelector() {
     months.sort((a, b) => b.localeCompare(a));
     
     selector.innerHTML = months.map(month => 
-        `<option value="${month}">${new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</option>`
+        `<option value="${month}">${new Date(month + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</option>`
     ).join('');
     
     selector.value = currentMonth;
@@ -540,13 +548,11 @@ function updateExpenseList() {
     const container = document.getElementById('expense-list-container');
     
     if (sortedExpenses.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-dollar-sign empty-icon"></i>
-                <p>No expenses found for this month</p>
-                <small>Start by adding your first expense</small>
-            </div>
-        `;
+        container.innerHTML = `<div class="empty-state">
+            <i class="fas fa-receipt empty-icon"></i>
+            <p>No expenses for this month</p>
+            <small>Click "Add Expense" to get started</small>
+        </div>`;
         return;
     }
     
@@ -557,29 +563,16 @@ function updateExpenseList() {
                 <div class="expense-details">
                     <div class="expense-name">${expense.name}</div>
                     <div class="expense-meta">
-                        <div class="expense-category category-${expense.category.toLowerCase().replace(' ', '-')}">
-                            <i class="fas fa-tag"></i>
-                            ${expense.category}
-                        </div>
-                        <div class="expense-date">
-                            <i class="fas fa-calendar"></i>
-                            ${new Date(expense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </div>
+                        <span><i class="fas fa-tag"></i> ${expense.category}</span>
+                        <span><i class="fas fa-calendar"></i> ${new Date(expense.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                     </div>
-                    ${expense.description ? `<div class="expense-description">${expense.description}</div>` : ''}
                 </div>
-                <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
+                <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
                 <button class="delete-expense" onclick="deleteExpense('${expense.id}')">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
         `).join('')}
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--text-muted);">Total for ${new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
-                <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">$${sortedExpenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</span>
-            </div>
-        </div>
     `;
 }
 
@@ -598,8 +591,9 @@ function updateChart() {
     
     if (Object.keys(categoryData).length === 0) {
         chartCanvas.style.display = 'none';
-        chartEmpty.style.display = 'block';
+        chartEmpty.style.display = 'flex';
         categorySummary.innerHTML = '';
+        if (chart) chart.destroy();
         return;
     }
     
@@ -607,10 +601,7 @@ function updateChart() {
     chartEmpty.style.display = 'none';
     
     const ctx = chartCanvas.getContext('2d');
-    
-    if (chart) {
-        chart.destroy();
-    }
+    if (chart) chart.destroy();
     
     chart = new Chart(ctx, {
         type: 'doughnut',
@@ -618,81 +609,65 @@ function updateChart() {
             labels: Object.keys(categoryData),
             datasets: [{
                 data: Object.values(categoryData),
-                backgroundColor: [
-                    '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', 
-                    '#EF4444', '#EC4899', '#06B6D4', '#F97316',
-                    '#84CC16', '#22C55E', '#6366F1', '#6B7280'
-                ],
-                borderColor: '#1F2937',
-                borderWidth: 2,
-                hoverBorderWidth: 3,
+                backgroundColor: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#F97316', '#84CC16', '#22C55E', '#6366F1', '#6B7280'],
+                borderColor: 'var(--bg-secondary)',
+                borderWidth: 4,
+                hoverBorderWidth: 4,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#F9FAFB',
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        font: { size: 12 }
-                    }
-                },
+                legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#1F2937',
-                    titleColor: '#F9FAFB',
-                    bodyColor: '#F9FAFB',
-                    borderColor: '#374151',
+                    backgroundColor: '#111',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: '#333',
                     borderWidth: 1,
-                    cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
                             const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
                             const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            return `${context.label}: $${context.parsed.toFixed(2)} (${percentage}%)`;
+                            return `${context.label}: ₹${context.parsed.toFixed(2)} (${percentage}%)`;
                         }
                     }
                 }
-            }
+            },
+            cutout: '70%'
         }
     });
     
-    // Update category summary
     const sortedCategories = Object.entries(categoryData).sort(([,a], [,b]) => b - a);
     const total = Object.values(categoryData).reduce((sum, value) => sum + value, 0);
     
-    categorySummary.innerHTML = `
-        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Category Summary</h3>
-        ${sortedCategories.map(([category, amount]) => {
-            const percentage = ((amount / total) * 100).toFixed(1);
-            return `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 0.5rem;">
-                    <span style="color: var(--text-secondary);">${category}</span>
-                    <div style="text-align: right;">
-                        <div style="color: var(--text-primary); font-weight: 600;">$${amount.toFixed(2)}</div>
-                        <div style="font-size: 0.875rem; color: var(--text-muted);">${percentage}%</div>
+    categorySummary.innerHTML = sortedCategories.map(([category, amount], index) => {
+        const percentage = ((amount / total) * 100).toFixed(1);
+        return `
+            <div class="budget-item">
+                <div class="budget-header">
+                    <div class="budget-info">
+                        <h3><i class="fas fa-circle" style="color: ${chart.data.datasets[0].backgroundColor[index]}; font-size: 0.7rem; margin-right: 0.5rem;"></i>${category}</h3>
+                    </div>
+                    <div class="budget-stats">
+                        <div class="budget-amount">₹${amount.toFixed(2)}</div>
+                        <small>${percentage}%</small>
                     </div>
                 </div>
-            `;
-        }).join('')}
-    `;
+            </div>
+        `;
+    }).join('');
 }
 
 function updateBudgetList() {
     const container = document.getElementById('budget-list');
     
     if (budgets.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-bullseye empty-icon"></i>
-                <p>No budgets set</p>
-                <small>Create budgets to track your spending</small>
-            </div>
-        `;
+        container.innerHTML = `<div class="empty-state">
+            <i class="fas fa-bullseye empty-icon"></i>
+            <p>No budgets set</p>
+        </div>`;
         return;
     }
     
@@ -702,53 +677,23 @@ function updateBudgetList() {
         const percentage = (spent / budget.amount) * 100;
         
         let status = 'good';
-        let statusText = 'Within budget';
-        let statusColor = 'var(--accent-green)';
-        
-        if (percentage >= 100) {
-            status = 'danger';
-            statusText = 'Budget exceeded!';
-            statusColor = 'var(--accent-red)';
-        } else if (percentage >= 80) {
-            status = 'warning';
-            statusText = 'Close to budget limit';
-            statusColor = 'var(--accent-yellow)';
-        } else if (percentage >= 60) {
-            status = 'warning';
-            statusText = 'Approaching budget limit';
-            statusColor = 'var(--accent-yellow)';
-        }
+        if (percentage >= 100) status = 'danger';
+        else if (percentage >= 80) status = 'warning';
         
         return `
-            <div class="budget-item" style="background: rgba(${status === 'danger' ? '239, 68, 68' : status === 'warning' ? '245, 158, 11' : '16, 185, 129'}, 0.1);">
+            <div class="budget-item">
                 <div class="budget-header">
-                    <div class="budget-info">
-                        <h3>${budget.category}</h3>
-                        <small>${budget.period} budget</small>
-                    </div>
+                    <div class="budget-info"><h3>${budget.category}</h3></div>
                     <div class="budget-stats">
-                        <div class="budget-amount">$${spent.toFixed(2)} / $${budget.amount.toFixed(2)}</div>
-                        <div class="budget-remaining ${status}" style="color: ${statusColor};">
-                            ${remaining >= 0 ? `$${remaining.toFixed(2)} remaining` : `$${Math.abs(remaining).toFixed(2)} over`}
-                        </div>
-                        <button class="delete-budget" onclick="deleteBudget('${budget.id}')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                        <div class="budget-amount">₹${spent.toFixed(2)} / ₹${budget.amount.toFixed(2)}</div>
                     </div>
                 </div>
                 <div class="budget-progress">
-                    <div class="budget-progress-header">
-                        <span style="color: var(--text-muted);">Progress</span>
-                        <span style="color: ${statusColor};">${percentage.toFixed(1)}%</span>
-                    </div>
                     <div class="progress-bar">
                         <div class="progress-fill ${status}" style="width: ${Math.min(percentage, 100)}%;"></div>
                     </div>
                 </div>
-                <div class="budget-status">
-                    <i class="fas ${percentage >= 100 ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="color: ${statusColor};"></i>
-                    <span style="color: ${statusColor};">${statusText}</span>
-                </div>
+                 <button class="delete-budget" onclick="deleteBudget('${budget.id}')"><i class="fas fa-times"></i></button>
             </div>
         `;
     }).join('');
@@ -762,38 +707,27 @@ function getCurrentMonthExpenses(category) {
 }
 
 function checkBudgetAlerts() {
+    const alertsContainer = document.getElementById('budget-alerts');
+    const alertsContent = document.getElementById('alerts-container');
     const alerts = [];
     
     budgets.forEach(budget => {
         const spent = getCurrentMonthExpenses(budget.category);
         const percentage = (spent / budget.amount) * 100;
         
-        if (percentage >= 75) {
-            alerts.push({
-                category: budget.category,
-                percentage: percentage.toFixed(1),
-                amount: spent.toFixed(2),
-                budget: budget.amount.toFixed(2),
-                type: percentage >= 90 ? 'danger' : 'warning'
-            });
+        if (percentage >= 80) {
+            alerts.push({ category: budget.category, percentage: percentage.toFixed(1), type: percentage >= 100 ? 'danger' : 'warning' });
         }
     });
     
-    const alertsContainer = document.getElementById('budget-alerts');
-    const alertsContent = document.getElementById('alerts-container');
-    
     if (alerts.length > 0) {
         alertsContent.innerHTML = alerts.map(alert => `
-            <div style="background: rgba(${alert.type === 'danger' ? '239, 68, 68' : '245, 158, 11'}, 0.1); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="color: var(--text-secondary);">${alert.category}</span>
-                    <span style="color: var(--text-primary); font-weight: 600;">${alert.percentage}% used</span>
+            <div class="budget-item">
+                <div>${alert.category} budget at ${alert.percentage}%</div>
+                <div class="progress-bar" style="height: 4px; margin-top: 4px;">
+                    <div class="progress-fill ${alert.type}" style="width: ${Math.min(alert.percentage, 100)}%;"></div>
                 </div>
-                <div style="width: 100%; background: var(--bg-secondary); border-radius: 4px; height: 0.5rem;">
-                    <div style="height: 0.5rem; border-radius: 4px; background: var(--accent-${alert.type === 'danger' ? 'red' : 'yellow'}); width: ${Math.min(alert.percentage, 100)}%;"></div>
-                </div>
-            </div>
-        `).join('');
+            </div>`).join('');
         alertsContainer.classList.remove('hidden');
     } else {
         alertsContainer.classList.add('hidden');

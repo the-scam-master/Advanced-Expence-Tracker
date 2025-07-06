@@ -9,8 +9,7 @@ from pathlib import Path
 import google.generativeai as genai
 import json
 from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
+import requests
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -105,20 +104,19 @@ class AIExpenseService:
             # Create prompt for AI
             prompt = f"""
             Analyze the following expense data and predict next month's total expenses:
-            
+
             Expense Data: {json.dumps(expense_data, indent=2)}
-            
+
             Please provide:
             1. Predicted total amount for next month
             2. Category-wise breakdown
             3. Key insights about spending patterns
             4. Recommendations for budget optimization
-            
+
             Respond in JSON format with keys: predicted_total, category_breakdown, insights, recommendations
             """
-
             response = self.model.generate_content(prompt)
-            
+
             # Parse AI response
             try:
                 ai_data = json.loads(response.text)
@@ -137,7 +135,6 @@ class AIExpenseService:
                     confidence=0.6,
                     data={"predicted_total": total_last_month}
                 )
-
         except Exception as e:
             logging.error(f"AI prediction error: {e}")
             return AIInsight(
@@ -152,23 +149,18 @@ class AIExpenseService:
         try:
             if not self.model:
                 return "Other"
-
             prompt = f"""
             Categorize this expense: "{expense_name}" (Amount: ${amount})
-            
+
             Choose from these categories:
             Food, Transportation, Bills, Entertainment, Housing, Groceries, Health, Education, Personal Care, Savings, Travel, Other
-            
+
             Respond with just the category name.
             """
-
             response = self.model.generate_content(prompt)
             category = response.text.strip()
-            
             valid_categories = ["Food", "Transportation", "Bills", "Entertainment", "Housing", "Groceries", "Health", "Education", "Personal Care", "Savings", "Travel", "Other"]
-            
             return category if category in valid_categories else "Other"
-
         except Exception as e:
             logging.error(f"AI categorization error: {e}")
             return "Other"
@@ -179,32 +171,26 @@ class AIExpenseService:
             if not self.model or not expenses:
                 return []
 
-            # Analyze spending patterns
-            df = pd.DataFrame([{
-                'date': exp.date,
-                'amount': exp.amount,
-                'category': exp.category,
-                'name': exp.name
-            } for exp in expenses])
-
-            # Generate insights
             insights = []
-            
-            # Top spending category
-            top_category = df.groupby('category')['amount'].sum().idxmax()
-            top_amount = df.groupby('category')['amount'].sum().max()
-            
-            insights.append(AIInsight(
-                type="insight",
-                message=f"Your highest spending category is {top_category} with ${top_amount:.2f}",
-                confidence=0.9,
-                data={"category": top_category, "amount": top_amount}
-            ))
 
-            # Spending trend
-            recent_expenses = df[df['date'] >= (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')]
-            if len(recent_expenses) > 0:
-                weekly_total = recent_expenses['amount'].sum()
+            # Top spending category
+            category_totals = {}
+            for exp in expenses:
+                category_totals[exp.category] = category_totals.get(exp.category, 0) + exp.amount
+            if category_totals:
+                top_category = max(category_totals, key=category_totals.get)
+                top_amount = category_totals[top_category]
+                insights.append(AIInsight(
+                    type="insight",
+                    message=f"Your highest spending category is {top_category} with ${top_amount:.2f}",
+                    confidence=0.9,
+                    data={"category": top_category, "amount": top_amount}
+                ))
+
+            # Weekly spending
+            week_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            weekly_total = sum(exp.amount for exp in expenses if exp.date >= week_ago)
+            if weekly_total > 0:
                 insights.append(AIInsight(
                     type="insight",
                     message=f"You've spent ${weekly_total:.2f} in the last 7 days",
@@ -213,7 +199,6 @@ class AIExpenseService:
                 ))
 
             return insights
-
         except Exception as e:
             logging.error(f"AI insights error: {e}")
             return []
@@ -246,7 +231,6 @@ async def get_spending_insights(request: ExpenseListRequest):
 async def get_expense_analytics(request: ExpenseListRequest):
     """Get comprehensive expense analytics"""
     expenses = request.expenses
-    
     if not expenses:
         return ExpenseAnalytics(
             total_expenses=0,
@@ -257,27 +241,22 @@ async def get_expense_analytics(request: ExpenseListRequest):
 
     # Calculate analytics
     total_expenses = sum(exp.amount for exp in expenses)
-    
     # Category breakdown
     category_breakdown = {}
     for exp in expenses:
         category_breakdown[exp.category] = category_breakdown.get(exp.category, 0) + exp.amount
-
     # Monthly trend (last 6 months)
     monthly_trend = []
     for i in range(6):
         month_start = datetime.now().replace(day=1) - timedelta(days=30*i)
         month_str = month_start.strftime('%Y-%m')
-        
         month_expenses = [exp for exp in expenses if exp.date.startswith(month_str)]
         month_total = sum(exp.amount for exp in month_expenses)
-        
         monthly_trend.append({
             "month": month_str,
             "total": month_total,
             "count": len(month_expenses)
         })
-
     return ExpenseAnalytics(
         total_expenses=total_expenses,
         category_breakdown=category_breakdown,
@@ -289,18 +268,15 @@ async def get_expense_analytics(request: ExpenseListRequest):
 async def get_budget_alerts(expenses: List[Expense], budgets: List[Budget]):
     """Get budget alerts based on spending"""
     alerts = []
-    
     for budget in budgets:
         # Calculate spent amount for this category
         spent = sum(exp.amount for exp in expenses if exp.category == budget.category)
         percentage = (spent / budget.amount) * 100 if budget.amount > 0 else 0
-        
         alert_type = "info"
         if percentage >= 90:
             alert_type = "danger"
         elif percentage >= 75:
             alert_type = "warning"
-        
         alerts.append(BudgetAlert(
             category=budget.category,
             budget_amount=budget.amount,
@@ -308,7 +284,6 @@ async def get_budget_alerts(expenses: List[Expense], budgets: List[Budget]):
             percentage_used=percentage,
             alert_type=alert_type
         ))
-    
     return alerts
 
 @api_router.get("/health")

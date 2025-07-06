@@ -85,7 +85,7 @@ body {
 
 .stat-content {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
 }
 

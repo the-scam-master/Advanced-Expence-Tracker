@@ -26,9 +26,6 @@ if not GOOGLE_API_KEY:
     logger.error("GOOGLE_API_KEY is not set in the environment variables.")
 else:
     try:
-        # Using 'gemini-pro' as 'gemma-2-27b-it' might have specific access or cost implications.
-        # If 'gemma-2-27b-it' is preferred and available, replace 'gemini-pro'.
-        # Note: 'gemma-2-27b-it' might be a specific version or alias, 'gemini-pro' is a common choice.
         genai.configure(api_key=GOOGLE_API_KEY)
         logger.info("Google Generative AI configured successfully.")
     except Exception as e:
@@ -39,7 +36,7 @@ app = FastAPI(title="Smart Expense Tracker API", version="1.0.0",
               description="Backend API for Smart Expense Tracker with AI-powered insights.")
 
 # Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+api_router = APouter(prefix="/api")
 
 # Configure CORS
 app.add_middleware(
@@ -97,8 +94,8 @@ class AIExpenseService:
         self.model = None
         if GOOGLE_API_KEY:
             try:
-                self.model = genai.GenerativeModel('gemini-pro') 
-                logger.info("AI model 'gemini-pro' initialized.")
+                self.model = genai.GenerativeModel('gemma-3-27b-it') 
+                logger.info("AI model 'gemma-3-27b-it' initialized.")
             except Exception as e:
                 logger.error(f"Failed to initialize AI model: {e}")
 
@@ -259,17 +256,38 @@ class AIExpenseService:
             ]
             categories_list_str = ", ".join(valid_categories)
 
+            # --- REVISED PROMPT FOR BETTER CATEGORIZATION ---
             prompt = f"""
-            Categorize the following expense into one of the provided categories. 
-            Respond with ONLY the category name. If the expense does not clearly fit any of the provided categories, respond with "Other".
-            The expense amount is in Indian Rupees (₹).
+            You are an AI assistant specialized in categorizing personal expenses.
+            Your goal is to accurately assign the best-fitting category from a predefined list to each expense.
+            Use common sense and infer the most likely category from the expense name and amount.
+            The currency for all amounts is Indian Rupees (₹).
 
             Expense Details:
             - Item: "{expense_name}"
             - Amount: ₹{amount:.2f}
 
             Available Categories: {categories_list_str}
+
+            Examples of Expense to Category Mapping:
+            - Expense: "Morning Coffee", Amount: ₹200 -> Food
+            - Expense: "Local Bus Fare", Amount: ₹50 -> Transportation
+            - Expense: "Electricity Bill", Amount: ₹1500 -> Bills
+            - Expense: "Movie Tickets", Amount: ₹800 -> Entertainment
+            - Expense: "Apartment Rent", Amount: ₹15000 -> Housing
+            - Expense: "Weekly Groceries", Amount: ₹2500 -> Groceries
+            - Expense: "Pharmacy medicine", Amount: ₹300 -> Health
+            - Expense: "Online Course Fee", Amount: ₹5000 -> Education
+            - Expense: "Haircut", Amount: ₹500 -> Personal Care
+            - Expense: "Mutual Fund Investment", Amount: ₹10000 -> Savings
+            - Expense: "Weekend Trip Hotel", Amount: ₹7000 -> Travel
+            - Expense: "Mystery Box purchase", Amount: ₹1000 -> Other
+            - Expense: "New T-shirt", Amount: ₹800 -> Personal Care
+
+            Respond with ONLY the category name. If no clear, strong match exists, then and only then, respond with "Other".
             """
+            # --- END REVISED PROMPT ---
+
             response = await self.model.generate_content_async(prompt)
             category = response.text.strip()
             
@@ -349,7 +367,7 @@ class AIExpenseService:
                 if isinstance(ai_raw_insights, list):
                     for item in ai_raw_insights:
                         if isinstance(item, dict) and "message" in item:
-                            # Replace any dollar signs that AI might generate by mistake to INR symbol
+                            # Replace any dollar signs that AI might mistakenly generate to INR symbol
                             clean_message = item["message"].replace("$", "₹")
                             ai_insights.append(AIInsight(
                                 type="insight",

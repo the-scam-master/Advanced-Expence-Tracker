@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 Smart Expense Tracker - Track, Analyze & Optimize</title>
-    <meta name="description" content="Smart Expense Tracker with AI-powered insights, budget management, and spending analytics. Track your expenses with a sleek dark theme.">
+    <title>💰 AI-Powered Smart Expense Tracker - Track, Analyze & Optimize</title>
+    <meta name="description" content="AI-Powered Smart Expense Tracker with AI-powered insights, budget management, and spending analytics. Track your expenses with a sleek dark theme.">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,50 +14,41 @@
 <body>
     <div class="container">
         <!-- Header -->
-        <header class="header">
-            <h1>💰 Smart Expense Tracker</h1>
-            <p class="subtitle">Track, Analyze, and Optimize Your Spending</p>
+        <header class="hero-header">
+            <h1 class="main-title">💰 AI-Powered Smart Expense Tracker</h1>
+            <p class="subtitle">Track, Analyze, and Optimize Your Spending with Intelligent Insights</p>
         </header>
 
-        <!-- Action Buttons (Moved Up for Accessibility) -->
-        <div class="action-buttons">
+        <!-- Main Action Buttons -->
+        <div class="action-buttons-top">
             <button id="add-expense-btn" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i>
                 Add Expense
             </button>
-            <button id="export-btn" class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export Data
-            </button>
-            <label class="btn btn-secondary" for="import-file">
-                <i class="fas fa-upload"></i>
-                Import Data
-                <input type="file" id="import-file" accept=".json" style="display: none;">
-            </label>
             <button id="predict-btn" class="btn btn-ai">
                 <i class="fas fa-magic"></i>
                 AI Predict
             </button>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-content">
                     <div class="stat-info">
                         <p class="stat-label">Total Expenses</p>
-                        <p class="stat-value" id="total-expenses">$0.00</p>
+                        <p class="stat-value" id="total-expenses">₹0.00</p>
                     </div>
-                    <i class="fas fa-dollar-sign stat-icon amber"></i>
+                    <i class="fas fa-coins stat-icon amber"></i>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-content">
                     <div class="stat-info">
                         <p class="stat-label">This Month</p>
-                        <p class="stat-value" id="month-expenses">$0.00</p>
+                        <p class="stat-value" id="month-expenses">₹0.00</p>
                     </div>
-                    <i class="fas fa-calendar stat-icon teal"></i>
+                    <i class="fas fa-calendar-alt stat-icon teal"></i>
                 </div>
             </div>
             <div class="stat-card">
@@ -66,7 +57,7 @@
                         <p class="stat-label">Categories</p>
                         <p class="stat-value" id="categories-count">0</p>
                     </div>
-                    <i class="fas fa-chart-pie stat-icon purple"></i>
+                    <i class="fas fa-tags stat-icon purple"></i>
                 </div>
             </div>
             <div class="stat-card">
@@ -75,10 +66,124 @@
                         <p class="stat-label">AI Insights</p>
                         <p class="stat-value" id="insights-count">0</p>
                     </div>
-                    <i class="fas fa-brain stat-icon coral"></i>
+                    <i class="fas fa-lightbulb stat-icon coral"></i>
                 </div>
             </div>
         </div>
+
+
+        <!-- Expense History -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-calendar-days"></i> Expense History</h2>
+                <select id="month-selector"></select>
+            </div>
+            <div id="expense-list-container">
+                <div class="empty-state">
+                    <i class="fas fa-receipt empty-icon"></i>
+                    <p>No expenses found for this month</p>
+                    <small>Start by adding your first expense</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Dashboard -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
+            </div>
+            <div id="analytics-container">
+                <div class="analytics-grid">
+                    <div class="analytics-item">
+                        <i class="fas fa-chart-column analytics-icon amber"></i>
+                        <div>
+                            <h3>Total Spending</h3>
+                            <p id="analytics-total">₹0.00</p>
+                            <small>All time expenses</small>
+                        </div>
+                    </div>
+                    <div class="analytics-item">
+                        <i class="fas fa-trending-up analytics-icon teal"></i>
+                        <div>
+                            <h3>Top Category</h3>
+                            <p id="analytics-top-category">None</p>
+                            <small id="analytics-top-amount">₹0.00</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="monthly-breakdown"></div>
+            </div>
+        </div>
+
+        <!-- Expense Pie Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-pie"></i> Expense Breakdown</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="expense-chart"></canvas>
+                <div id="chart-empty" class="empty-state">
+                    <i class="fas fa-chart-pie empty-icon"></i>
+                    <p>No data to display</p>
+                    <small>Add expenses to see the breakdown</small>
+                </div>
+            </div>
+            <div id="category-summary"></div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-lightbulb"></i> AI Insights</h2>
+                <button id="refresh-insights" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+            <div id="ai-insights">
+                <div class="empty-state">
+                    <i class="fas fa-brain empty-icon"></i>
+                    <p>No insights available</p>
+                    <small>Add more expenses to get AI-powered insights</small>
+                </div>
+            </div>
+            <div id="prediction-result" class="hidden"></div>
+        </div>
+
+        <!-- Budget Manager -->
+        <div class="card compact-budget-section">
+            <div class="card-header">
+                <h2><i class="fas fa-flag"></i> Budgets</h2>
+                <button id="add-budget-btn" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-plus"></i>
+                    Add Budget
+                </button>
+            </div>
+            <div id="budget-form" class="budget-form hidden">
+                <h3>Add New Budget</h3>
+                <select id="budget-category">
+                    <option value="">Select Category</option>
+                </select>
+                <input type="number" id="budget-amount" placeholder="Budget amount (₹)" step="0.01" min="0">
+                <select id="budget-period">
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+                <div class="budget-buttons">
+                    <button id="cancel-budget" class="btn btn-secondary">Cancel</button>
+                    <button id="save-budget" class="btn btn-primary">Add Budget</button>
+                </div>
+            </div>
+            <div id="budget-list">
+                <div class="empty-state">
+                    <i class="fas fa-chart-bar empty-icon"></i>
+                    <p>No budgets set</p>
+                    <small>Create budgets to track your spending</small>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Budget Alerts -->
         <div id="budget-alerts" class="budget-alerts hidden">
@@ -89,120 +194,19 @@
             <div id="alerts-container"></div>
         </div>
 
-        <!-- Main Content (Single Column for Mobile) -->
-        <div class="main-content">
-            <!-- Expense History -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-calendar"></i> Expense History</h2>
-                    <select id="month-selector"></select>
-                </div>
-                <div id="expense-list-container">
-                    <div class="empty-state">
-                        <i class="fas fa-dollar-sign empty-icon"></i>
-                        <p>No expenses found for this month</p>
-                        <small>Start by adding your first expense</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Budget Manager -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-bullseye"></i> Budget Manager</h2>
-                    <button id="add-budget-btn" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i>
-                        Add Budget
-                    </button>
-                </div>
-                <div id="budget-form" class="budget-form hidden">
-                    <h3>Add New Budget</h3>
-                    <select id="budget-category">
-                        <option value="">Select Category</option>
-                    </select>
-                    <input type="number" id="budget-amount" placeholder="Budget amount" step="0.01" min="0">
-                    <select id="budget-period">
-                        <option value="monthly">Monthly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                    <div class="budget-buttons">
-                        <button id="cancel-budget" class="btn btn-secondary">Cancel</button>
-                        <button id="save-budget" class="btn btn-primary">Add Budget</button>
-                    </div>
-                </div>
-                <div id="budget-list">
-                    <div class="empty-state">
-                        <i class="fas fa-bullseye empty-icon"></i>
-                        <p>No budgets set</p>
-                        <small>Create budgets to track your spending</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analytics -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-chart-bar"></i> Analytics Dashboard</h2>
-                </div>
-                <div id="analytics-container">
-                    <div class="analytics-grid">
-                        <div class="analytics-item">
-                            <i class="fas fa-dollar-sign analytics-icon amber"></i>
-                            <div>
-                                <h3>Total Spending</h3>
-                                <p id="analytics-total">$0.00</p>
-                                <small>All time expenses</small>
-                            </div>
-                        </div>
-                        <div class="analytics-item">
-                            <i class="fas fa-trending-up analytics-icon teal"></i>
-                            <div>
-                                <h3>Top Category</h3>
-                                <p id="analytics-top-category">None</p>
-                                <small id="analytics-top-amount">$0.00</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="monthly-breakdown"></div>
-                </div>
-            </div>
-
-            <!-- Expense Chart -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-chart-pie"></i> Expense Breakdown</h2>
-                </div>
-                <div class="chart-container">
-                    <canvas id="expense-chart"></canvas>
-                    <div id="chart-empty" class="empty-state">
-                        <i class="fas fa-chart-pie empty-icon"></i>
-                        <p>No data to display</p>
-                        <small>Add expenses to see the breakdown</small>
-                    </div>
-                </div>
-                <div id="category-summary"></div>
-            </div>
-
-            <!-- AI Insights -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-brain"></i> AI Insights</h2>
-                    <button id="refresh-insights" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
-                    </button>
-                </div>
-                <div id="ai-insights">
-                    <div class="empty-state">
-                        <i class="fas fa-brain empty-icon"></i>
-                        <p>No insights available</p>
-                        <small>Add more expenses to get AI-powered insights</small>
-                    </div>
-                </div>
-                <div id="prediction-result" class="hidden"></div>
-            </div>
+        <!-- Other Action Buttons -->
+        <div class="action-buttons-bottom">
+            <button id="export-btn" class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Export Data
+            </button>
+            <label class="btn btn-secondary" for="import-file">
+                <i class="fas fa-upload"></i>
+                Import Data
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </label>
         </div>
+
 
         <!-- Add Expense Modal -->
         <div id="expense-modal" class="modal hidden">
@@ -214,21 +218,21 @@
                 <form id="expense-form">
                     <div class="form-group">
                         <label for="expense-name">
-                            <i class="fas fa-file-text"></i>
+                            <i class="fas fa-file-invoice-dollar"></i>
                             Expense Name *
                         </label>
                         <input type="text" id="expense-name" required placeholder="e.g., Coffee, Groceries, Gas">
                     </div>
                     <div class="form-group">
                         <label for="expense-amount">
-                            <i class="fas fa-dollar-sign"></i>
+                            <i class="fas fa-coins"></i>
                             Amount *
                         </label>
                         <input type="number" id="expense-amount" required step="0.01" min="0" placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="expense-date">
-                            <i class="fas fa-calendar"></i>
+                            <i class="fas fa-calendar-alt"></i>
                             Date *
                         </label>
                         <input type="date" id="expense-date" required>
@@ -255,7 +259,7 @@
                                 <option value="Other">Other</option>
                             </select>
                             <button type="button" id="suggest-category" class="btn btn-ai btn-sm">
-                                <i class="fas fa-magic"></i>
+                                <i class="fas fa-wand-sparkles"></i>
                                 AI
                             </button>
                         </div>

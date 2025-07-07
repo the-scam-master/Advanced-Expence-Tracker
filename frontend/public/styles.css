@@ -24,17 +24,19 @@ body {
     --bg-card: rgba(30, 41, 54, 0.9);
     --bg-hover: rgba(45, 55, 72, 0.8);
     --bg-glass: rgba(30, 41, 54, 0.6);
+    --bg-transparent: rgba(0, 0, 0, 0);
 
     --text-primary: #E2E8F0;
     --text-secondary: #A0AEC0;
     --text-muted: #718096;
+    --text-contrast: #ffffff; /* For buttons and primary actions */
 
-    --accent-amber: #FFA726;
+    --accent-amber: #FFA726; /* Primary accent */
     --accent-teal: #26A69A;
-    --accent-purple: #AB47BC;
-    --accent-coral: #FF7043;
-    --accent-green: #66BB6A;
-    --accent-red: #EF5350;
+    --accent-purple: #AB47BC; /* AI/AI Accent */
+    --accent-coral: #FF7043; /* Warning/Alerts */
+    --accent-green: #66BB6A; /* Positive feedback */
+    --accent-red: #EF5350;   /* Danger/Errors */
     --accent-blue: #42A5F5;
 
     --border: rgba(160, 174, 192, 0.2);
@@ -56,48 +58,56 @@ body {
     min-height: 100vh;
 }
 
-/* Header */
-.header {
+/* Hero Header */
+.hero-header {
     text-align: center;
     margin-bottom: 3rem;
-    position: relative;
+    padding: 3rem 1rem; /* Add some vertical padding */
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(255, 167, 38, 0.2) 0%, rgba(255, 112, 67, 0.15) 100%), var(--bg-glass);
+    backdrop-filter: blur(15px);
+    box-shadow: var(--shadow-intense);
 }
 
-.header::before {
-    content: '';
-    position: absolute;
-    top: -2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 4px;
-    background: var(--gradient-primary);
-    border-radius: 2px;
+.hero-header::before { /* Remove the unnecessary line */
+    display: none;
 }
 
-.header h1 {
-    font-size: 3rem;
-    font-weight: 700;
+.hero-header .main-title {
+    font-size: 3.5rem; /* Larger title */
+    font-weight: 800; /* Bolder */
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 0.5rem;
-    text-shadow: 0 0 30px rgba(255, 167, 38, 0.3);
+    text-shadow: 0 0 50px rgba(255, 167, 38, 0.4); /* Stronger shadow */
 }
 
-.subtitle {
-    font-size: 1.1rem;
+.hero-header .subtitle {
+    font-size: 1.2rem; /* Slightly larger subtitle */
     color: var(--text-secondary);
     font-weight: 300;
 }
 
-/* Action Buttons */
-.action-buttons {
+/* Action Buttons (Top) */
+.action-buttons-top {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 3rem;
+    justify-content: center;
+    z-index: 100; /* Ensure buttons are above content if needed */
+    position: relative;
+}
+
+/* Action Buttons (Bottom) */
+.action-buttons-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 3rem; /* Add margin above */
     justify-content: center;
 }
 
@@ -110,7 +120,7 @@ body {
     border: 1px solid transparent;
     border-radius: 12px;
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600; /* Slightly bolder */
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
@@ -137,7 +147,7 @@ body {
 
 .btn-primary {
     background: var(--gradient-primary);
-    color: #ffffff;
+    color: var(--text-contrast); /* Use contrast text color */
     border: 1px solid rgba(255, 167, 38, 0.3);
 }
 
@@ -162,7 +172,7 @@ body {
 
 .btn-ai {
     background: var(--gradient-purple);
-    color: #ffffff;
+    color: var(--text-contrast);
     border: 1px solid rgba(171, 71, 188, 0.3);
 }
 
@@ -296,19 +306,19 @@ body {
     font-weight: 600;
 }
 
-/* Enhanced Main Content */
+/* Enhanced Main Content Layout */
 .main-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2rem; /* Default gap for larger screens */
 }
 
 /* Enhanced Cards */
 .card {
     background: var(--bg-glass);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
+    /* border-radius: 16px;  Replaced in media queries for boxy look */
+    padding: 2rem; /* Default padding for larger screens */
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -356,8 +366,16 @@ body {
 }
 
 .card-header h2 i {
-    color: var(--accent-amber);
+    color: var(--accent-amber); /* Default accent for card titles */
     filter: drop-shadow(0 0 5px var(--accent-amber));
+}
+.card-header h2 .fas.fa-flag { /* Specific icon color for Budgets */
+    color: var(--accent-green);
+    filter: none;
+}
+.card-header h2 .fas.fa-lightbulb { /* Specific icon color for AI Insights */
+    color: var(--accent-purple);
+    filter: none;
 }
 
 /* Enhanced Form Styles */
@@ -388,6 +406,10 @@ input, select, textarea {
     font-size: 0.95rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
+}
+
+input::placeholder, select::placeholder, textarea::placeholder {
+    color: var(--text-muted);
 }
 
 input:focus, select:focus, textarea:focus {
@@ -497,12 +519,13 @@ input:focus, select:focus, textarea:focus {
 /* Enhanced Chart Container */
 .chart-container {
     position: relative;
-    height: 350px;
+    height: 350px; /* Adjusted height */
     margin-bottom: 1.5rem;
     background: var(--bg-glass);
     border-radius: 12px;
     padding: 1rem;
     backdrop-filter: blur(10px);
+    border: 1px solid var(--border); /* Add border */
 }
 
 /* Enhanced Empty States */
@@ -558,38 +581,68 @@ input:focus, select:focus, textarea:focus {
 .analytics-icon.amber { color: var(--accent-amber); }
 .analytics-icon.teal { color: var(--accent-teal); }
 
+/* Brightened Analytics */
+.analytics-item p { /* Targets the stat values */
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
 /* Enhanced Budget */
+.compact-budget-section {
+    padding: 1.5rem; /* Less padding than main cards */
+}
+
+.compact-budget-section .card-header {
+    margin-bottom: 1rem; /* Reduced margin */
+    padding-bottom: 0.75rem;
+}
+
+.compact-budget-section .card-header h2 {
+    font-size: 1.2rem; /* Smaller heading */
+}
+
+.compact-budget-section .card-header button {
+    padding: 0.5rem 1rem; /* Smaller button */
+}
+
 .budget-form {
-    background: var(--bg-glass);
-    padding: 2rem;
+    background: var(--bg-transparent); /* Transparent background for form inside card */
+    padding: 1.5rem 0; /* Adjusted padding */
     border-radius: 12px;
-    border: 1px solid var(--border);
     margin-bottom: 1.5rem;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow);
+    border: none; /* Remove border if it's inside a card */
+    backdrop-filter: none; /* Remove backdrop if it's inside a card */
+    box-shadow: none; /* Remove shadow if it's inside a card */
 }
 
 .budget-form h3 {
     color: var(--text-primary);
-    margin-bottom: 1.5rem;
-    font-size: 1.25rem;
+    margin-bottom: 1rem; /* Reduced margin */
+    font-size: 1.1rem; /* Smaller heading */
+}
+
+.budget-form select, .budget-form input[type="number"] {
+    background: var(--bg-secondary); /* Darker background for form elements */
+    border: 1px solid var(--border);
 }
 
 .budget-buttons {
     display: flex;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem; /* Reduced margin */
 }
 
 .budget-buttons .btn {
     flex: 1;
     justify-content: center;
+    font-size: 0.9rem; /* Smaller font */
+    padding: 0.75rem;
 }
 
 .budget-item {
     background: var(--bg-glass);
-    padding: 1.5rem;
-    border-radius: 12px;
+    padding: 1rem; /* Reduced padding */
+    border-radius: 10px; /* Slightly smaller radius */
     margin-bottom: 1rem;
     border: 1px solid var(--border);
     backdrop-filter: blur(10px);
@@ -605,18 +658,19 @@ input:focus, select:focus, textarea:focus {
 .budget-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
-    margin-bottom: 1rem;
+    align-items: flex-start; /* Align items to the start */
+    margin-bottom: 0.75rem; /* Reduced margin */
 }
 
 .budget-info h3 {
     color: var(--text-primary);
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    font-size: 1rem; /* Smaller font */
+    margin-bottom: 0.25rem;
 }
 
 .budget-info small {
     color: var(--text-muted);
+    font-size: 0.8rem; /* Smaller font */
 }
 
 .budget-stats {
@@ -626,7 +680,7 @@ input:focus, select:focus, textarea:focus {
 .budget-amount {
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem; /* Smaller font */
 }
 
 .budget-remaining {
@@ -700,6 +754,9 @@ input:focus, select:focus, textarea:focus {
     padding: 0.5rem;
     border-radius: 50%;
     transition: all 0.3s ease;
+    position: absolute; /* Position to avoid interfering with layout */
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .delete-budget:hover {
@@ -710,7 +767,7 @@ input:focus, select:focus, textarea:focus {
 /* Enhanced Expense List */
 .expense-item {
     background: var(--bg-glass);
-    padding: 1.5rem;
+    padding: 1rem; /* Reduced padding */
     border-radius: 12px;
     margin-bottom: 1rem;
     display: flex;
@@ -728,7 +785,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .expense-icon {
-    font-size: 2rem;
+    font-size: 1.75rem; /* Slightly smaller icon */
     filter: drop-shadow(0 0 5px currentColor);
 }
 
@@ -739,38 +796,32 @@ input:focus, select:focus, textarea:focus {
 .expense-name {
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem; /* Smaller font */
     margin-bottom: 0.25rem;
 }
 
 .expense-meta {
     display: flex;
     gap: 0.75rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem; /* Smaller font */
     color: var(--text-muted);
     flex-wrap: wrap;
 }
 
-.expense-category {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.expense-date {
+.expense-category, .expense-date {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
 .expense-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
 
 .expense-amount {
-    font-size: 1.5rem;
+    font-size: 1.3rem; /* Slightly smaller amount */
     font-weight: 700;
     color: var(--text-primary);
     text-shadow: 0 0 10px rgba(226, 232, 240, 0.2);
@@ -781,10 +832,11 @@ input:focus, select:focus, textarea:focus {
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.4rem; /* Smaller padding */
     border-radius: 50%;
     opacity: 0;
     transition: all 0.3s ease;
+    margin-left: auto; /* Push to the right */
 }
 
 .expense-item:hover .delete-expense {
@@ -874,6 +926,9 @@ input:focus, select:focus, textarea:focus {
     top: 2rem;
     right: 2rem;
     z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align toasts to the right */
 }
 
 .toast {
@@ -886,11 +941,11 @@ input:focus, select:focus, textarea:focus {
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
     max-width: 350px;
-    transform: translateX(100%);
-    animation: slideIn 0.3s ease forwards;
+    transform: translateX(100%); /* Start off-screen */
+    animation: slideInFromRight 0.4s ease forwards; /* Custom animation */
 }
 
-@keyframes slideIn {
+@keyframes slideInFromRight {
     to { transform: translateX(0); }
 }
 
@@ -907,7 +962,7 @@ input:focus, select:focus, textarea:focus {
     display: none !important;
 }
 
-/* Enhanced Category Colors */
+/* Enhanced Category Colors for Chart */
 .category-food { color: #FFB74D; }
 .category-transportation { color: #4DD0E1; }
 .category-bills { color: #F48FB1; }
@@ -921,7 +976,7 @@ input:focus, select:focus, textarea:focus {
 .category-travel { color: #7986CB; }
 .category-other { color: var(--text-muted); }
 
-/* Enhanced Animations */
+/* Animations */
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -937,41 +992,61 @@ input:focus, select:focus, textarea:focus {
     to { transform: translateY(0); }
 }
 
-/* Enhanced Responsive Design */
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 768px) { /* Tablet view */
     .container {
-        padding: 1rem;
+        padding: 1.2rem;
     }
 
-    .header h1 {
-        font-size: 2rem;
+    .hero-header {
+        padding: 2.5rem 1rem;
     }
 
-    .subtitle {
-        font-size: 1rem;
+    .hero-header .main-title {
+        font-size: 2.8rem;
+    }
+    .hero-header .subtitle {
+        font-size: 1.1rem;
     }
 
-    .action-buttons {
-        flex-direction: column;
-        align-items: stretch;
+    .action-buttons-top {
+        margin-bottom: 2rem;
     }
-
+    
     .btn {
-        padding: 1rem;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        padding: 0.75rem 1.5rem;
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
         gap: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+    }
+    .stat-icon {
+        font-size: 2.25rem;
     }
 
     .card {
-        padding: 1.5rem;
+        padding: 1.5rem; /* Slightly reduced padding */
+        border-radius: 0; /* ----> Boxy border radius <---- */
+    }
+    /* ----> Adjusting gap for cards in main-content on tablet <---- */
+    .main-content {
+        gap: 1.5rem; 
+    }
+    /* ----> Explicit margin-bottom for spacing between stacked cards <---- */
+    .main-content > .card:not(:last-child),
+    .main-content > .compact-budget-section:not(:last-child) {
+        margin-bottom: 1.5rem; 
     }
 
+
     .card-header h2 {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
     }
 
     .analytics-grid {
@@ -979,243 +1054,179 @@ input:focus, select:focus, textarea:focus {
     }
 
     .expense-item {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         gap: 0.75rem;
         padding: 1rem;
     }
+    .expense-details { flex-direction: column; align-items: flex-start; }
 
-    .expense-icon {
-        font-size: 1.5rem;
-    }
-
-    .expense-name {
-        font-size: 1rem;
-    }
-
-    .expense-meta {
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        flex-wrap: wrap;
-    }
-
-    .expense-amount {
-        font-size: 1.1rem;
-        align-self: flex-start;
-    }
-
-    .expense-description {
-        font-size: 0.85rem;
-    }
+    .expense-name { font-size: 1rem; }
+    .expense-meta { font-size: 0.8rem; gap: 0.5rem;}
+    .expense-amount { font-size: 1.2rem; }
 
     .delete-expense {
-        padding: 0.4rem;
-        opacity: 1; /* Always visible on mobile for easier interaction */
+        opacity: 1;
+        margin-left: auto;
     }
-
-    .modal-content {
-        width: 95%;
-        max-width: 400px;
+    
+    .compact-budget-section {
+        padding: 1.2rem;
+        border-radius: 0; /* ----> Boxy border radius <---- */
     }
-}
-
-@media (max-width: 480px) {
-    .header h1 {
-        font-size: 1.75rem;
+    .budget-item {
+        padding: 0.8rem;
     }
-
-    .subtitle {
-        font-size: 0.9rem;
-    }
-
-    .stat-value {
-        font-size: 1.5rem;
-    }
-
-    .stat-icon {
-        font-size: 2rem;
-    }
-
-    .form-buttons, .budget-buttons {
-        flex-direction: column;
-    }
-
-    .modal-header {
-        padding: 1.5rem;
-    }
-
-    .modal-header h2 {
-        font-size: 1.25rem;
-    }
-
-    #expense-form {
-        padding: 1.5rem;
-    }
-
-    .close-btn {
-        font-size: 1.25rem;
-        padding: 0.4rem;
-    }
-
-    .chart-container {
-        height: 300px;
-    }
-
-    .toast {
-        max-width: 90%;
-        right: 1rem;
-        top: 1rem;
-    }
-
-    .empty-state {
-        padding: 2rem 0.5rem;
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-    }
-
-    .budget-form {
-        padding: 1.5rem;
-    }
-
     .budget-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
-
-    .budget-stats {
-        text-align: left;
-    }
+    .budget-stats { text-align: left; }
+    .budget-info h3 { font-size: 0.95rem; }
+    .budget-amount { font-size: 0.95rem; }
+    
+    .modal-content { width: 95%; }
 }
 
-/* Additional Media Query for Ultra-Small Screens */
-@media (max-width: 360px) {
-    .header h1 {
-        font-size: 1.5rem;
+@media (max-width: 480px) { /* Mobile view */
+    .container {
+        padding: 0.8rem;
     }
 
-    .btn {
-        padding: 0.75rem;
-        font-size: 0.85rem;
+    .hero-header {
+        padding: 2rem 0.8rem;
+        margin-bottom: 2rem;
     }
 
-    .card {
-        padding: 1rem;
+    .hero-header .main-title {
+        font-size: 2.2rem;
+        line-height: 1.1;
     }
-
-    .stat-card {
-        padding: 1rem;
-    }
-
-    .stat-value {
-        font-size: 1.25rem;
-    }
-
-    .modal-content {
-        width: 98%;
-        padding: 1rem;
-    }
-
-    .expense-item {
-        padding: 0.75rem;
-    }
-
-    .expense-icon {
-        font-size: 1.25rem;
-    }
-
-    .expense-name {
+    .hero-header .subtitle {
         font-size: 0.95rem;
     }
 
-    .expense-amount {
-        font-size: 1rem;
+    .action-buttons-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
     }
+    .action-buttons-top .btn { width: 100%; }
+
+    .action-buttons-bottom {
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+    .action-buttons-bottom .btn { width: 100%; }
+    
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.9rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+
+    .card {
+        padding: 1rem; /* Reduced padding */
+        border-radius: 0; /* ----> Boxy border radius <---- */
+    }
+    /* ----> Adjusting gap for cards in main-content on mobile <---- */
+    .main-content {
+        gap: 1.25rem; /* Smaller gap for mobile */
+    }
+    /* ----> Explicit margin-bottom for spacing between stacked cards <---- */
+    .main-content > .card:not(:last-child),
+    .main-content > .compact-budget-section:not(:last-child) {
+        margin-bottom: 1.25rem; 
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .card-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .analytics-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    .analytics-item div {
+        width: 100%;
+    }
+    .analytics-icon { margin-bottom: 0.5rem;}
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .empty-state {
+        padding: 2rem 0.75rem;
+    }
+    .empty-icon { font-size: 4rem; }
+
+    .compact-budget-section {
+        padding: 1rem; /* Further reduced padding */
+        border-radius: 0; /* ----> Boxy border radius <---- */
+    }
+    .budget-form { padding: 1rem 0; }
+    .budget-form h3 { font-size: 1rem; }
+    .budget-buttons { flex-direction: column; }
+    .budget-buttons .btn { width: 100%;}
+
+    .budget-item { padding: 0.8rem; }
+    .budget-info h3 { font-size: 0.9rem; }
+    .budget-amount { font-size: 0.9rem; }
+    
+    .modal-content {
+        width: 95%;
+    }
+    .modal-header {
+        padding: 1.5rem;
+    }
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+    #expense-form {
+        padding: 1.5rem;
+    }
+
+    .toast-container {
+        top: 1rem;
+        right: 1rem;
+        width: calc(100% - 2rem);
+    }
+    .toast { max-width: 100%; }
 }
 
-/* Reduced Motion for Accessibility */
+/* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
     .btn, .card, .stat-card, .expense-item, .budget-item, .modal, .toast {
         transition: none;
     }
-
-    .modal-content {
-        transform: none;
-    }
-
-    @keyframes pulse-glow {
+    .modal-content { transform: none; }
+    .toast { animation: none; }
+    @keyframes pulse-glow { /* Keep pulse but make it subtle */
         0%, 100% { box-shadow: var(--shadow); }
     }
-
-    @keyframes shimmer {
+    @keyframes shimmer { /* Disable shimmer */
         0%, 100% { transform: translateX(0); }
-    }
-}
-
-/* High Contrast Mode for Accessibility */
-@media (prefers-contrast: high) {
-    :root {
-        --bg-primary: #000000;
-        --bg-secondary: #1a1a1a;
-        --bg-tertiary: #333333;
-        --bg-card: #222222;
-        --bg-glass: rgba(50, 50, 50, 0.8);
-        --text-primary: #ffffff;
-        --text-secondary: #cccccc;
-        --text-muted: #999999;
-        --border: #666666;
-    }
-
-    .btn-primary {
-        background: #ff9500;
-        border-color: #ffffff;
-    }
-
-    .btn-secondary {
-        background: #333333;
-        border-color: #ffffff;
-    }
-
-    .btn-ai {
-        background: #9c27b0;
-        border-color: #ffffff;
-    }
-
-    .stat-card, .card, .budget-item, .expense-item {
-        border-color: #ffffff;
-    }
-}
-
-/* Print Styles */
-@media print {
-    body {
-        background: #ffffff;
-        color: #000000;
-    }
-
-    .container {
-        padding: 1rem;
-    }
-
-    .btn, .modal, .toast, .loading, .delete-budget, .delete-expense {
-        display: none;
-    }
-
-    .card, .stat-card, .budget-item, .expense-item {
-        background: none;
-        border: 1px solid #000000;
-        box-shadow: none;
-    }
-
-    .header::before, .card::before, .stat-card::before {
-        display: none;
-    }
-
-    .header h1 {
-        background: none;
-        -webkit-text-fill-color: #000000;
-        text-shadow: none;
     }
 }

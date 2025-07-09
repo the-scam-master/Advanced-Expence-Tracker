@@ -1,39 +1,46 @@
-# 💰 Smart Expense Tracker
+# Smart Expense Tracker - AI-Powered Financial Management
 
-A modern, AI-powered expense tracking application with a beautiful dark theme and intelligent insights. Built with Flask backend and vanilla JavaScript frontend.
+A modern, AI-powered expense tracking application with intelligent categorization, predictive analytics, and personalized financial insights. Built with a mobile-first design and professional UI inspired by modern banking applications.
 
-![Smart Expense Tracker](https://img.shields.io/badge/Status-Ready%20to%20Use-brightgreen)
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
-![Flask](https://img.shields.io/badge/Flask-3.0.0-green)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
+![Smart Expense Tracker](https://img.shields.io/badge/Version-2.0-blue.svg)
+![AI Powered](https://img.shields.io/badge/AI-Powered-green.svg)
+![Mobile First](https://img.shields.io/badge/Design-Mobile--First-orange.svg)
 
-## ✨ Features
+## 🌟 Key Features
 
-### � Core Features
-- **Expense Tracking**: Add, view, and delete expenses with categories
-- **Budget Management**: Set monthly budgets and track spending
-- **Visual Analytics**: Beautiful charts and spending breakdowns
-- **Dark Theme**: Minimal, modern UI design
-- **Responsive Design**: Works on desktop and mobile devices
+### 🤖 AI-Powered Intelligence
+- **Smart Categorization**: Automatically categorizes expenses using Google Gemini AI
+- **Predictive Analytics**: AI predicts monthly spending based on current patterns
+- **Financial Health Score**: Real-time assessment of spending habits
+- **Personalized Insights**: Tailored recommendations for better financial management
+- **Savings Advice**: AI-generated suggestions for optimizing spending and increasing savings
 
-### 🤖 AI Features
-- **Smart Categorization**: AI suggests categories for your expenses
-- **Spending Insights**: Get personalized insights about your spending habits
-- **Expense Prediction**: AI predicts next month's expenses based on patterns
-- **Financial Health Score**: AI-powered assessment of your financial habits
+### 💳 Core Functionality
+- **Expense Tracking**: Add, edit, and delete expenses with ease
+- **Budget Management**: Set monthly budgets and track progress
+- **Salary Integration**: Input monthly income for comprehensive financial overview
+- **Category Breakdown**: Visual representation of spending across categories
+- **Real-time Updates**: Live dashboard with current spending metrics
 
-### 📊 Analytics
-- **Category Breakdown**: Visual representation of spending by category
-- **Monthly Trends**: Track spending patterns over time
-- **Budget Alerts**: Get notified when you're close to budget limits
-- **Spending Statistics**: Total expenses, average daily spend, and more
+### 🎨 Modern UI/UX
+- **Professional Icons**: Font Awesome icons for a polished look
+- **Dark Theme**: Easy on the eyes with modern dark design
+- **Mobile-First**: Optimized for mobile devices with responsive design
+- **Smooth Animations**: Fluid transitions and hover effects
+- **Intuitive Navigation**: Bottom navigation for easy access
 
-## 🚀 Quick Start
+### 🎓 User Onboarding
+- **5-Step Guided Tour**: Comprehensive introduction for new users
+- **Feature Explanations**: Interactive walkthrough of all capabilities
+- **Setup Assistance**: Guided budget and salary setup
+- **Help System**: Accessible help through the header question mark icon
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.8 or higher
-- A modern web browser
-- Google AI Studio API key (for AI features)
+- Python 3.8+
+- Node.js 14+ (optional, for development)
+- Google Gemini API key (for AI features)
 
 ### Installation
 
@@ -43,183 +50,314 @@ A modern, AI-powered expense tracking application with a beautiful dark theme an
    cd smart-expense-tracker
    ```
 
-2. **Set up the backend**
+2. **Backend Setup**
    ```bash
    cd backend
    pip install -r requirements.txt
    ```
 
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your Google API key
+3. **Environment Configuration**
+   Create a `.env` file in the backend directory:
+   ```env
+   GOOGLE_API_KEY=your_google_api_key_here
+   FLASK_DEBUG=False
+   PORT=8001
+   FRONTEND_URL=http://localhost:3000
    ```
 
-4. **Start the backend server**
+4. **Start the Application**
    ```bash
    python server.py
    ```
 
-5. **Open the application**
-   - Open your browser and go to `http://localhost:8001`
-   - The frontend files are served from `frontend/public/`
+5. **Access the App**
+   Open your browser and navigate to `http://localhost:8001`
 
-## 🔧 Configuration
+### Getting Google Gemini API Key
 
-### Environment Variables
-
-Create a `.env` file in the `backend` directory:
-
-```bash
-# Required for AI features
-GOOGLE_API_KEY=your_google_api_key_here
-
-# Optional
-FLASK_ENV=development
-PORT=8001
-```
-
-### Getting Google AI API Key
-
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Create a new API key
-4. Copy the key to your `.env` file
+4. Copy the key and add it to your `.env` file
 
-> **Note**: AI features will work with fallback rule-based logic if no API key is provided.
+## 📱 How to Use
 
-## � UI Overview
+### First Time Setup
 
-### Dashboard
-- **Stats Cards**: Total balance, monthly spending, budget remaining, AI score
-- **Spending Chart**: Interactive donut chart with category breakdown
-- **Recent Expenses**: Quick view of latest transactions
-- **Quick Actions**: Fast access to add expense, get insights, set budgets
+1. **Launch the App**: Open the application in your browser
+2. **Onboarding Tour**: Follow the 5-step guided tour to learn about features
+3. **Set Monthly Salary**: Click the wallet icon in the header to input your income
+4. **Set Monthly Budget**: Use the budget card or onboarding to set spending limits
 
-### Expense Management
-- **Add Expenses**: Simple form with AI category suggestions
-- **View All Expenses**: Comprehensive list with search and filters
-- **Categories**: 12 predefined categories with emoji icons
-- **Delete Expenses**: Easy expense removal with confirmation
+### Adding Expenses
 
-### Analytics
-- **Overview Stats**: Total expenses, transaction count, daily averages
-- **Category Analysis**: Detailed breakdown by spending category
-- **Trends**: Visual representation of spending patterns
+1. **Click "Add Expense"** button or the floating "+" button
+2. **Enter Details**: 
+   - Expense name (e.g., "Coffee at Starbucks")
+   - Amount in ₹
+   - Date of expense
+   - Optional description
+3. **Category Selection**: 
+   - Let AI automatically categorize
+   - Or manually select from dropdown
+   - Use "AI" button for smart suggestions
+4. **Save**: Click "Add Expense" to save
 
-### AI Insights
-- **Smart Analysis**: AI-powered insights about spending habits
-- **Recommendations**: Personalized suggestions for better financial health
-- **Predictions**: Future expense forecasting
+### Dashboard Overview
+
+#### Financial Cards
+- **Monthly Budget Card**: Shows budget progress with visual indicator
+- **This Month Card**: Displays current month's spending and statistics
+- **AI Prediction Card**: Shows predicted monthly spending with confidence score
+
+#### Quick Actions
+- **Add Expense**: Quick access to expense form
+- **AI Analysis**: Get detailed financial health analysis
+- **Savings Tips**: Receive personalized savings recommendations
+
+#### Category Breakdown
+- Visual representation of spending by category
+- Percentage and amount for each category
+- Professional icons for easy identification
+
+#### Recent Expenses
+- List of recent transactions
+- Category icons and metadata
+- Quick delete functionality
+
+### AI Features
+
+#### Smart Categorization
+- Analyzes expense name and amount
+- Uses context-aware AI for accurate categorization
+- Supports 14 different categories with professional icons
+
+#### Predictive Analytics
+- Analyzes spending patterns
+- Predicts end-of-month spending
+- Provides confidence score for predictions
+- Updates in real-time as expenses are added
+
+#### Financial Health Score
+- Comprehensive analysis of spending habits
+- Score from 0-100 based on multiple factors
+- Personalized recommendations for improvement
+
+#### Savings Advice
+- Analyzes income vs. spending
+- Suggests optimal budget allocations
+- Recommends emergency fund targets
+- Provides actionable savings strategies
+
+### Navigation
+
+#### Bottom Navigation
+- **Dashboard**: Overview of finances
+- **Expenses**: Detailed expense list
+- **Analytics**: AI-powered insights
+- **Profile**: User information and statistics
+
+#### Header Actions
+- **Wallet Icon**: Set/update monthly salary
+- **Question Mark**: Open onboarding guide anytime
+- **Settings Icon**: Future settings access
 
 ## 🏗️ Architecture
 
-### Backend (Flask)
-- **RESTful API**: Clean API endpoints for all operations
-- **AI Integration**: Google Gemini AI for intelligent features
-- **Data Storage**: In-memory storage (easily replaceable with database)
-- **Error Handling**: Comprehensive error handling and logging
-- **CORS Support**: Cross-origin requests for frontend
+### Frontend
+- **Pure JavaScript**: No external frameworks for fast loading
+- **Modern CSS**: CSS Grid, Flexbox, and custom properties
+- **Font Awesome**: Professional icon library
+- **Responsive Design**: Mobile-first approach
 
-### Frontend (Vanilla JavaScript)
-- **Modern ES6+**: Clean, modern JavaScript without frameworks
-- **Responsive Design**: Mobile-first approach with CSS Grid/Flexbox
-- **Chart.js Integration**: Beautiful interactive charts
-- **Dark Theme**: Carefully designed color palette and typography
-- **Progressive Enhancement**: Works without JavaScript for basic features
+### Backend
+- **Flask**: Lightweight Python web framework
+- **Google Gemini AI**: Advanced AI for expense analysis
+- **JSON Storage**: Simple file-based data persistence
+- **RESTful API**: Clean API design for frontend communication
 
-## � API Endpoints
+### File Structure
+```
+smart-expense-tracker/
+├── backend/
+│   ├── server.py              # Main Flask application
+│   ├── requirements.txt       # Python dependencies
+│   └── data/                  # JSON data storage
+├── frontend/
+│   └── public/
+│       ├── index.html         # Main HTML file
+│       ├── styles.css         # Comprehensive styling
+│       └── scripts.js         # Application logic
+├── vercel.json               # Deployment configuration
+└── README.md                 # This file
+```
+
+## 🎨 Design System
+
+### Colors
+- **Primary**: Modern blue gradient (#667eea to #764ba2)
+- **Success**: Green (#10b981)
+- **Warning**: Orange (#f59e0b)
+- **Danger**: Red (#ef4444)
+- **Background**: Dark theme (#0a0a0a, #1e1e1e)
+
+### Typography
+- **Font**: Inter (Google Fonts)
+- **Hierarchy**: 6 different font sizes
+- **Weight**: 300-700 font weights
+
+### Spacing
+- **Consistent**: 8px grid system
+- **Responsive**: Adapts to screen size
+- **Logical**: Semantic spacing names
+
+### Icons
+- **Font Awesome 6**: Professional icon library
+- **Consistent**: Same style across the app
+- **Semantic**: Icons match their function
+
+## 🔧 API Endpoints
 
 ### Expenses
 - `GET /api/expenses` - Get all expenses
 - `POST /api/expenses` - Add new expense
 - `DELETE /api/expenses/{id}` - Delete expense
-- `GET /api/expenses/categorize` - AI category suggestion
-- `POST /api/expenses/insights` - Get AI insights
-- `POST /api/expenses/predict` - Get AI predictions
+- `POST /api/expenses/categorize` - AI categorization
+- `POST /api/expenses/analyze` - Get AI analysis
+- `POST /api/expenses/predict-month` - Get spending prediction
 
-### Budgets
-- `GET /api/budgets` - Get all budgets
-- `POST /api/budgets` - Add new budget
+### Budget & Salary
+- `GET /api/budgets` - Get budget information
+- `POST /api/budgets` - Set monthly budget
+- `GET /api/salary` - Get salary information
+- `POST /api/salary` - Set monthly salary
 
-### Analytics
-- `GET /api/analytics` - Get spending analytics
-- `GET /api/budget/alerts` - Get budget alerts
-- `GET /api/health` - API health check
+### AI Features
+- `POST /api/savings/allocate` - Get savings advice
+- `GET /api/financial-health` - Get financial health score
+- `GET /api/dashboard` - Get dashboard data
 
-## 🎯 Usage Examples
+## 🚀 Deployment
 
-### Adding an Expense
-1. Click the "Add Expense" button or use the quick action
-2. Fill in the expense details
-3. Use "AI Suggest" for automatic categorization
-4. Submit to save
+### Vercel (Recommended)
+1. **Install Vercel CLI**
+   ```bash
+   npm install -g vercel
+   ```
 
-### Setting a Budget
-1. Navigate to Budgets or use quick action
-2. Select category and set amount
-3. Choose budget period (monthly/weekly/yearly)
-4. Submit to track spending against budget
+2. **Deploy**
+   ```bash
+   vercel
+   ```
 
-### Getting AI Insights
-1. Click "AI Insights" from quick actions or navigation
-2. View personalized insights about spending patterns
-3. Get recommendations for better financial management
+3. **Set Environment Variables**
+   - Add `GOOGLE_API_KEY` in Vercel dashboard
 
-## 🌟 Key Technologies
+### Manual Deployment
+1. **Prepare Environment**
+   - Set production environment variables
+   - Ensure all dependencies are installed
 
-- **Backend**: Flask, Google Generative AI, Python
-- **Frontend**: HTML5, CSS3, JavaScript ES6+, Chart.js
-- **AI**: Google Gemma 3-27B-IT model
-- **Design**: Modern dark theme, responsive layout
-- **Icons**: Unicode emojis for simplicity and universality
+2. **Run Production Server**
+   ```bash
+   python server.py
+   ```
 
-## � Security Features
+## 🔒 Security Features
 
-- **Input Validation**: Comprehensive validation on both frontend and backend
-- **Error Handling**: Graceful error handling without exposing sensitive information
-- **CORS Configuration**: Secure cross-origin resource sharing
-- **Environment Variables**: Secure storage of API keys and configuration
+- **Input Validation**: All user inputs are validated
+- **Error Handling**: Graceful error handling throughout
+- **File Locking**: Prevents data corruption during concurrent access
+- **CORS Configuration**: Restricted to specific origins
+- **API Rate Limiting**: Built-in protection against abuse
 
-## 🚧 Future Enhancements
+## 📊 Data Management
 
-- **Database Integration**: PostgreSQL/MongoDB for persistent storage
-- **User Authentication**: Multi-user support with login/signup
-- **Export Features**: PDF reports, CSV exports
-- **Advanced Analytics**: More detailed charts and insights
-- **Notifications**: Email/SMS alerts for budget limits
-- **Recurring Expenses**: Support for recurring transactions
-- **Mobile App**: React Native or PWA version
+### Storage
+- **File-based**: Simple JSON file storage
+- **Atomic Operations**: File locking ensures data integrity
+- **Backup**: Easy to backup and restore
+
+### Categories
+The app supports 14 expense categories:
+- 🍽️ Food & Dining
+- 🚗 Transportation
+- 📋 Bills & Utilities
+- 🎬 Entertainment
+- 🛍️ Shopping
+- 🛒 Groceries
+- 💊 Healthcare
+- 🎓 Education
+- ✈️ Travel
+- 🧴 Personal Care
+- 📈 Investment
+- 🛡️ Insurance
+- 🏠 Rent
+- 📦 Other
+
+## 🎯 Future Enhancements
+
+- [ ] Multiple currency support
+- [ ] Export data to CSV/PDF
+- [ ] Recurring expense templates
+- [ ] Bill reminders and notifications
+- [ ] Advanced analytics and charts
+- [ ] Multi-user support
+- [ ] Bank account integration
+- [ ] Receipt photo scanning
+- [ ] Expense sharing and splitting
+- [ ] Investment tracking
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**AI Features Not Working**
+- Ensure `GOOGLE_API_KEY` is set correctly
+- Check API key permissions in Google Console
+- Verify internet connection
+
+**Data Not Persisting**
+- Check file permissions in `backend/data/` directory
+- Ensure sufficient disk space
+- Verify no other instances are running
+
+**UI Not Loading**
+- Clear browser cache
+- Check developer console for errors
+- Ensure all static files are accessible
+
+### Performance Tips
+
+- **Clear Data**: Periodically backup and clear old data
+- **Browser**: Use modern browsers for best performance
+- **Network**: Ensure stable internet for AI features
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## 📝 License
+## � License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-If you encounter any issues or have questions:
+- **Google Gemini AI** for intelligent expense categorization
+- **Font Awesome** for professional icons
+- **Inter Font** for beautiful typography
+- **Flask Community** for the excellent web framework
 
-1. Check the console for error messages
-2. Ensure your Google API key is correctly configured
-3. Verify all dependencies are installed
-4. Check that the backend server is running on port 8001
+## � Support
 
-## 📊 Screenshots
-
-The application features a beautiful dark theme with:
-- **Modern sidebar navigation**
-- **Interactive dashboard with charts**
-- **Clean expense entry forms**
-- **Responsive design for all screen sizes**
-- **AI-powered insights and recommendations**
+For support, feature requests, or bug reports:
+- Create an issue in the repository
+- Check the troubleshooting section
+- Review the onboarding guide in the app
 
 ---
 

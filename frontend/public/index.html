@@ -3,288 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 AI-Powered Smart Expense Tracker - Track, Analyze & Optimize</title>
-    <meta name="description" content="AI-Powered Smart Expense Tracker with AI-powered insights, budget management, and spending analytics. Track your expenses with a sleek dark theme.">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Smart Expense Tracker</title>
+    <meta name="description" content="Modern AI-powered expense tracking with beautiful insights">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>�</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/index.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="hero-header">
-            <h1 class="main-title">💰 AI-Powered Smart Expense Tracker</h1>
-            <p class="subtitle">Track, Analyze, and Optimize Your Spending with Intelligent Insights</p>
+    <div class="app">
+        <!-- Header with greeting -->
+        <header class="header">
+            <div class="header-content">
+                <div class="greeting">
+                    <span class="greeting-icon">👋</span>
+                    <div class="greeting-text">
+                        <h1 class="greeting-title">Greetings!</h1>
+                        <p class="greeting-subtitle">Start your day with NUCTON</p>
+                    </div>
+                </div>
+                <button class="profile-btn" onclick="showProfile()">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Profile" class="profile-avatar">
+                </button>
+            </div>
         </header>
 
-        <!-- Main Action Buttons -->
-        <div class="action-buttons-top">
-            <button id="add-expense-btn" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i>
-                Add Expense
-            </button>
-            <button id="predict-btn" class="btn btn-ai">
-                <i class="fas fa-magic"></i>
-                AI Predict
-            </button>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Total Expenses</p>
-                        <p class="stat-value" id="total-expenses">₹0.00</p>
-                    </div>
-                    <i class="fas fa-coins stat-icon amber"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">This Month</p>
-                        <p class="stat-value" id="month-expenses">₹0.00</p>
-                    </div>
-                    <i class="fas fa-calendar-alt stat-icon teal"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">Categories</p>
-                        <p class="stat-value" id="categories-count">0</p>
-                    </div>
-                    <i class="fas fa-tags stat-icon purple"></i>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-info">
-                        <p class="stat-label">AI Insights</p>
-                        <p class="stat-value" id="insights-count">0</p>
-                    </div>
-                    <i class="fas fa-lightbulb stat-icon coral"></i>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Expense History -->
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-calendar-days"></i> Expense History</h2>
-                <select id="month-selector"></select>
-            </div>
-            <div id="expense-list-container">
-                <div class="empty-state">
-                    <i class="fas fa-receipt empty-icon"></i>
-                    <p>No expenses found for this month</p>
-                    <small>Start by adding your first expense</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Analytics Dashboard -->
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
-            </div>
-            <div id="analytics-container">
-                <div class="analytics-grid">
-                    <div class="analytics-item">
-                        <i class="fas fa-chart-column analytics-icon amber"></i>
-                        <div>
-                            <h3>Total Spending</h3>
-                            <p id="analytics-total">₹0.00</p>
-                            <small>All time expenses</small>
-                        </div>
-                    </div>
-                    <div class="analytics-item">
-                        <i class="fas fa-trending-up analytics-icon teal"></i>
-                        <div>
-                            <h3>Top Category</h3>
-                            <p id="analytics-top-category">None</p>
-                            <small id="analytics-top-amount">₹0.00</small>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Cards Section -->
+            <div class="cards-section">
+                <!-- Primary Card -->
+                <div class="card primary-card">
+                    <div class="card-balance">
+                        <div class="balance-amount" id="main-balance">₹15,780.0</div>
+                        <div class="card-number">•••• 1810</div>
+                        <div class="card-info">
+                            <span class="card-date">10/24</span>
+                            <span class="card-brand">VISA</span>
                         </div>
                     </div>
                 </div>
-                <div id="monthly-breakdown"></div>
-            </div>
-        </div>
 
-        <!-- Expense Pie Chart -->
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-chart-pie"></i> Expense Breakdown</h2>
-            </div>
-            <div class="chart-container">
-                <canvas id="expense-chart"></canvas>
-                <div id="chart-empty" class="empty-state">
-                    <i class="fas fa-chart-pie empty-icon"></i>
-                    <p>No data to display</p>
-                    <small>Add expenses to see the breakdown</small>
+                <!-- Secondary Card -->
+                <div class="card secondary-card">
+                    <div class="card-balance">
+                        <div class="balance-amount" id="secondary-balance">₹1,23,424.0</div>
+                        <div class="card-number">•••• 1423</div>
+                        <div class="card-info">
+                            <span class="card-date">10/24</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="card-toggle">
+                                <label for="card-toggle"></label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="category-summary"></div>
-        </div>
 
-        <!-- AI Insights -->
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-lightbulb"></i> AI Insights</h2>
-                <button id="refresh-insights" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn active" onclick="showTransfer()">
+                    <span class="action-icon">💸</span>
+                    <span class="action-label">Transfer</span>
+                </button>
+                <button class="action-btn" onclick="showUtility()">
+                    <span class="action-icon">⚡</span>
+                    <span class="action-label">Utility</span>
+                </button>
+                <button class="action-btn" onclick="showTaxes()">
+                    <span class="action-icon">📊</span>
+                    <span class="action-label">Taxes</span>
+                </button>
+                <button class="action-btn" onclick="showTransport()">
+                    <span class="action-icon">🚗</span>
+                    <span class="action-label">Transport</span>
                 </button>
             </div>
-            <div id="ai-insights">
-                <div class="empty-state">
-                    <i class="fas fa-brain empty-icon"></i>
-                    <p>No insights available</p>
-                    <small>Add more expenses to get AI-powered insights</small>
+
+            <!-- Recent Sales -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Sales</h2>
+                    <span class="section-badge">Sender</span>
+                    <span class="section-badge">Date</span>
+                    <span class="section-badge">Status</span>
+                    <span class="section-badge">Amount</span>
+                </div>
+                <div class="transactions-list" id="transactions-list">
+                    <!-- Transactions will be populated here -->
                 </div>
             </div>
-            <div id="prediction-result" class="hidden"></div>
-        </div>
+        </main>
 
-        <!-- Budget Manager -->
-        <div class="card compact-budget-section">
-            <div class="card-header">
-                <h2><i class="fas fa-flag"></i> Budgets</h2>
-                <button id="add-budget-btn" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-plus"></i>
-                    Add Budget
-                </button>
-            </div>
-            <div id="budget-form" class="budget-form hidden">
-                <h3>Add New Budget</h3>
-                <select id="budget-category">
-                    <option value="">Select Category</option>
-                </select>
-                <input type="number" id="budget-amount" placeholder="Budget amount (₹)" step="0.01" min="0">
-                <select id="budget-period">
-                    <option value="monthly">Monthly</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
-                <div class="budget-buttons">
-                    <button id="cancel-budget" class="btn btn-secondary">Cancel</button>
-                    <button id="save-budget" class="btn btn-primary">Add Budget</button>
+        <!-- Sidebar (Statistics) -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <!-- Statistics Header -->
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">Statistics</h3>
+                    <span class="sidebar-period">This week</span>
+                </div>
+
+                <!-- Total Amount Display -->
+                <div class="total-display">
+                    <div class="total-label">Total</div>
+                    <div class="total-amount" id="total-display">₹14,810.0</div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <canvas id="expense-chart"></canvas>
+                    <div class="chart-center-label">
+                        <div class="center-amount" id="chart-center-amount">₹9,560.0</div>
+                    </div>
+                </div>
+
+                <!-- Chart Legend -->
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot payment"></span>
+                        <span class="legend-label">Payment at the time</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot transaction"></span>
+                        <span class="legend-label">Money transaction</span>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="category-breakdown" id="category-breakdown">
+                    <!-- Category items will be populated here -->
                 </div>
             </div>
-            <div id="budget-list">
-                <div class="empty-state">
-                    <i class="fas fa-chart-bar empty-icon"></i>
-                    <p>No budgets set</p>
-                    <small>Create budgets to track your spending</small>
-                </div>
-            </div>
-        </div>
+        </aside>
 
-
-        <!-- Budget Alerts -->
-        <div id="budget-alerts" class="budget-alerts hidden">
-            <div class="alert-header">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Budget Alerts</h3>
-            </div>
-            <div id="alerts-container"></div>
-        </div>
-
-        <!-- Other Action Buttons -->
-        <div class="action-buttons-bottom">
-            <button id="export-btn" class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export Data
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showDashboard()">
+                <span class="nav-icon">🏠</span>
             </button>
-            <label class="btn btn-secondary" for="import-file">
-                <i class="fas fa-upload"></i>
-                Import Data
-                <input type="file" id="import-file" accept=".json" style="display: none;">
-            </label>
-        </div>
+            <button class="nav-item" onclick="showExpenses()">
+                <span class="nav-icon">📊</span>
+            </button>
+            <button class="nav-item" onclick="showBudgets()">
+                <span class="nav-icon">💡</span>
+            </button>
+            <button class="nav-item" onclick="showAnalytics()">
+                <span class="nav-icon">📈</span>
+            </button>
+            <button class="nav-item" onclick="showSettings()">
+                <span class="nav-icon">⚙️</span>
+            </button>
+        </nav>
 
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="showAddExpenseModal()">
+            <span class="fab-icon">+</span>
+        </button>
+    </div>
 
-        <!-- Add Expense Modal -->
-        <div id="expense-modal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Add New Expense</h2>
-                    <button id="close-modal" class="close-btn">×</button>
+    <!-- Add Expense Modal -->
+    <div class="modal" id="add-expense-modal">
+        <div class="modal-overlay" onclick="hideAddExpenseModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Expense</h3>
+                <button class="modal-close" onclick="hideAddExpenseModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <form class="expense-form" id="expense-form">
+                <div class="form-group">
+                    <label for="expense-name">Expense Name</label>
+                    <input type="text" id="expense-name" placeholder="e.g., Coffee, Lunch, Groceries" required>
                 </div>
-                <form id="expense-form">
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="expense-name">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            Expense Name *
-                        </label>
-                        <input type="text" id="expense-name" required placeholder="e.g., Coffee, Groceries, Gas">
+                        <label for="expense-amount">Amount</label>
+                        <input type="number" id="expense-amount" placeholder="0.00" step="0.01" required>
                     </div>
                     <div class="form-group">
-                        <label for="expense-amount">
-                            <i class="fas fa-coins"></i>
-                            Amount *
-                        </label>
-                        <input type="number" id="expense-amount" required step="0.01" min="0" placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label for="expense-date">
-                            <i class="fas fa-calendar-alt"></i>
-                            Date *
-                        </label>
+                        <label for="expense-date">Date</label>
                         <input type="date" id="expense-date" required>
                     </div>
-                    <div class="form-group">
-                        <label for="expense-category">
-                            <i class="fas fa-tag"></i>
-                            Category *
-                        </label>
-                        <div class="category-input">
-                            <select id="expense-category" required>
-                                <option value="">Select category</option>
-                                <option value="Food">Food</option>
-                                <option value="Transportation">Transportation</option>
-                                <option value="Bills">Bills</option>
-                                <option value="Entertainment">Entertainment</option>
-                                <option value="Housing">Housing</option>
-                                <option value="Groceries">Groceries</option>
-                                <option value="Health">Health</option>
-                                <option value="Education">Education</option>
-                                <option value="Personal Care">Personal Care</option>
-                                <option value="Savings">Savings</option>
-                                <option value="Travel">Travel</option>
-                                <option value="Other">Other</option>
-                            </select>
-                            <button type="button" id="suggest-category" class="btn btn-ai btn-sm">
-                                <i class="fas fa-wand-sparkles"></i>
-                                AI
-                            </button>
-                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-category">Category</label>
+                    <div class="category-selector">
+                        <select id="expense-category" required>
+                            <option value="">Select category</option>
+                            <option value="Food">🍽️ Food</option>
+                            <option value="Transportation">🚗 Transportation</option>
+                            <option value="Bills">📋 Bills</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Housing">🏠 Housing</option>
+                            <option value="Groceries">🛒 Groceries</option>
+                            <option value="Health">💊 Health</option>
+                            <option value="Education">📚 Education</option>
+                            <option value="Personal Care">🧴 Personal Care</option>
+                            <option value="Savings">💰 Savings</option>
+                            <option value="Travel">✈️ Travel</option>
+                            <option value="Other">📦 Other</option>
+                        </select>
+                        <button type="button" class="ai-suggest-btn" onclick="suggestCategory()">
+                            <span class="ai-icon">🤖</span>
+                            AI Suggest
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="expense-description">Description (optional)</label>
-                        <textarea id="expense-description" placeholder="Add a note about this expense..." rows="3"></textarea>
-                    </div>
-                    <div class="form-buttons">
-                        <button type="button" id="cancel-expense" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Expense</button>
-                    </div>
-                </form>
+                </div>
+
+                <div class="form-group">
+                    <label for="expense-description">Description (Optional)</label>
+                    <textarea id="expense-description" placeholder="Add a note about this expense..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddExpenseModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Insights Modal -->
+    <div class="modal" id="insights-modal">
+        <div class="modal-overlay" onclick="hideInsightsModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">AI Insights</h3>
+                <button class="modal-close" onclick="hideInsightsModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="insights-content" id="insights-content">
+                <!-- AI insights will be populated here -->
             </div>
         </div>
-
-        <!-- Loading Overlay -->
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p>Processing...</p>
-        </div>
-
-        <!-- Toast Container -->
-        <div id="toast-container"></div>
     </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p class="loading-text">Processing with AI...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
     <script src="scripts.js"></script>
 </body>

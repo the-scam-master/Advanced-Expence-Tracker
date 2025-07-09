@@ -4,164 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Expense Tracker</title>
-    <meta name="description" content="Modern AI-powered expense tracking with beautiful insights">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>�</text></svg>">
+    <meta name="description" content="AI-powered expense tracking with smart insights">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app">
-        <!-- Header with greeting -->
-        <header class="header">
-            <div class="header-content">
-                <div class="greeting">
-                    <span class="greeting-icon">👋</span>
-                    <div class="greeting-text">
-                        <h1 class="greeting-title">Greetings!</h1>
-                        <p class="greeting-subtitle">Start your day with NUCTON</p>
-                    </div>
-                </div>
-                <button class="profile-btn" onclick="showProfile()">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Profile" class="profile-avatar">
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Cards Section -->
-            <div class="cards-section">
-                <!-- Primary Card -->
-                <div class="card primary-card">
-                    <div class="card-balance">
-                        <div class="balance-amount" id="main-balance">₹15,780.0</div>
-                        <div class="card-number">•••• 1810</div>
-                        <div class="card-info">
-                            <span class="card-date">10/24</span>
-                            <span class="card-brand">VISA</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Secondary Card -->
-                <div class="card secondary-card">
-                    <div class="card-balance">
-                        <div class="balance-amount" id="secondary-balance">₹1,23,424.0</div>
-                        <div class="card-number">•••• 1423</div>
-                        <div class="card-info">
-                            <span class="card-date">10/24</span>
-                            <div class="toggle-switch">
-                                <input type="checkbox" id="card-toggle">
-                                <label for="card-toggle"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="action-btn active" onclick="showTransfer()">
-                    <span class="action-icon">💸</span>
-                    <span class="action-label">Transfer</span>
-                </button>
-                <button class="action-btn" onclick="showUtility()">
-                    <span class="action-icon">⚡</span>
-                    <span class="action-label">Utility</span>
-                </button>
-                <button class="action-btn" onclick="showTaxes()">
-                    <span class="action-icon">📊</span>
-                    <span class="action-label">Taxes</span>
-                </button>
-                <button class="action-btn" onclick="showTransport()">
-                    <span class="action-icon">🚗</span>
-                    <span class="action-label">Transport</span>
-                </button>
-            </div>
-
-            <!-- Recent Sales -->
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Sales</h2>
-                    <span class="section-badge">Sender</span>
-                    <span class="section-badge">Date</span>
-                    <span class="section-badge">Status</span>
-                    <span class="section-badge">Amount</span>
-                </div>
-                <div class="transactions-list" id="transactions-list">
-                    <!-- Transactions will be populated here -->
-                </div>
-            </div>
-        </main>
-
-        <!-- Sidebar (Statistics) -->
+        <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="sidebar-content">
-                <!-- Statistics Header -->
-                <div class="sidebar-header">
-                    <h3 class="sidebar-title">Statistics</h3>
-                    <span class="sidebar-period">This week</span>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">�</div>
+                    <span class="logo-text">ExpenseAI</span>
                 </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-view="expenses">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-text">Expenses</span>
+                </a>
+                <a href="#" class="nav-link" data-view="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="#" class="nav-link" data-view="budgets">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Budgets</span>
+                </a>
+                <a href="#" class="nav-link" data-view="insights">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-text">AI Insights</span>
+                </a>
+            </nav>
 
-                <!-- Total Amount Display -->
-                <div class="total-display">
-                    <div class="total-label">Total</div>
-                    <div class="total-amount" id="total-display">₹14,810.0</div>
-                </div>
-
-                <!-- Chart Container -->
-                <div class="chart-container">
-                    <canvas id="expense-chart"></canvas>
-                    <div class="chart-center-label">
-                        <div class="center-amount" id="chart-center-amount">₹9,560.0</div>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <div class="user-name">Smart User</div>
+                        <div class="user-status">Free Plan</div>
                     </div>
-                </div>
-
-                <!-- Chart Legend -->
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <span class="legend-dot payment"></span>
-                        <span class="legend-label">Payment at the time</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot transaction"></span>
-                        <span class="legend-label">Money transaction</span>
-                    </div>
-                </div>
-
-                <!-- Category Breakdown -->
-                <div class="category-breakdown" id="category-breakdown">
-                    <!-- Category items will be populated here -->
                 </div>
             </div>
         </aside>
 
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="showDashboard()">
-                <span class="nav-icon">🏠</span>
-            </button>
-            <button class="nav-item" onclick="showExpenses()">
-                <span class="nav-icon">📊</span>
-            </button>
-            <button class="nav-item" onclick="showBudgets()">
-                <span class="nav-icon">💡</span>
-            </button>
-            <button class="nav-item" onclick="showAnalytics()">
-                <span class="nav-icon">📈</span>
-            </button>
-            <button class="nav-item" onclick="showSettings()">
-                <span class="nav-icon">⚙️</span>
-            </button>
-        </nav>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="greeting">
+                        <h1 class="greeting-title">Good morning! 👋</h1>
+                        <p class="greeting-subtitle">Here's your financial overview</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-icon" onclick="refreshData()" title="Refresh">
+                            <span class="icon">🔄</span>
+                        </button>
+                        <button class="btn btn-icon" onclick="showSettings()" title="Settings">
+                            <span class="icon">⚙️</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
 
-        <!-- Floating Action Button -->
-        <button class="fab" onclick="showAddExpenseModal()">
-            <span class="fab-icon">+</span>
-        </button>
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboard-view">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Balance</span>
+                            <span class="stat-icon">💳</span>
+                        </div>
+                        <div class="stat-value" id="total-balance">₹0</div>
+                        <div class="stat-change positive">+2.5% from last month</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">This Month</span>
+                            <span class="stat-icon">�</span>
+                        </div>
+                        <div class="stat-value" id="month-spent">₹0</div>
+                        <div class="stat-change negative">+12% from last month</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Budget Left</span>
+                            <span class="stat-icon">🎯</span>
+                        </div>
+                        <div class="stat-value" id="budget-left">₹0</div>
+                        <div class="stat-change">68% remaining</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">AI Score</span>
+                            <span class="stat-icon">🤖</span>
+                        </div>
+                        <div class="stat-value" id="ai-score">85</div>
+                        <div class="stat-change positive">Good spending habits</div>
+                    </div>
+                </div>
+
+                <!-- Chart and Recent Expenses -->
+                <div class="dashboard-grid">
+                    <!-- Expense Chart -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Spending Overview</h3>
+                            <select class="period-selector" id="chart-period">
+                                <option value="week">This Week</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="expense-chart"></canvas>
+                            <div class="chart-legend" id="chart-legend"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Expenses -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Expenses</h3>
+                            <button class="btn btn-ghost btn-sm" onclick="showAllExpenses()">View All</button>
+                        </div>
+                        <div class="expenses-list" id="recent-expenses">
+                            <!-- Recent expenses will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn primary" onclick="showAddExpenseModal()">
+                        <span class="action-icon">➕</span>
+                        <span class="action-text">Add Expense</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="getAIInsights()">
+                        <span class="action-icon">🤖</span>
+                        <span class="action-text">AI Insights</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="showBudgetModal()">
+                        <span class="action-icon">🎯</span>
+                        <span class="action-text">Set Budget</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="predictExpenses()">
+                        <span class="action-icon">🔮</span>
+                        <span class="action-text">Predict</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expenses View -->
+            <div class="view" id="expenses-view">
+                <div class="view-header">
+                    <h2 class="view-title">All Expenses</h2>
+                    <button class="btn btn-primary" onclick="showAddExpenseModal()">Add Expense</button>
+                </div>
+                <div class="expenses-grid" id="all-expenses">
+                    <!-- All expenses will be populated here -->
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div class="view" id="analytics-view">
+                <div class="view-header">
+                    <h2 class="view-title">Analytics</h2>
+                    <button class="btn btn-ghost" onclick="refreshAnalytics()">Refresh</button>
+                </div>
+                <div class="analytics-content" id="analytics-content">
+                    <!-- Analytics will be populated here -->
+                </div>
+            </div>
+
+            <!-- Budgets View -->
+            <div class="view" id="budgets-view">
+                <div class="view-header">
+                    <h2 class="view-title">Budget Management</h2>
+                    <button class="btn btn-primary" onclick="showBudgetModal()">Add Budget</button>
+                </div>
+                <div class="budgets-grid" id="budgets-grid">
+                    <!-- Budgets will be populated here -->
+                </div>
+            </div>
+
+            <!-- AI Insights View -->
+            <div class="view" id="insights-view">
+                <div class="view-header">
+                    <h2 class="view-title">AI Insights</h2>
+                    <button class="btn btn-ghost" onclick="refreshInsights()">Refresh</button>
+                </div>
+                <div class="insights-content" id="insights-content">
+                    <!-- AI insights will be populated here -->
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- Add Expense Modal -->
@@ -170,13 +221,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Add New Expense</h3>
-                <button class="modal-close" onclick="hideAddExpenseModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
+                <button class="modal-close" onclick="hideAddExpenseModal()">✕</button>
             </div>
-            <form class="expense-form" id="expense-form">
+            <form class="modal-form" id="expense-form">
                 <div class="form-group">
                     <label for="expense-name">Expense Name</label>
                     <input type="text" id="expense-name" placeholder="e.g., Coffee, Lunch, Groceries" required>
@@ -184,8 +231,8 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="expense-amount">Amount</label>
-                        <input type="number" id="expense-amount" placeholder="0.00" step="0.01" required>
+                        <label for="expense-amount">Amount (₹)</label>
+                        <input type="number" id="expense-amount" placeholder="0" step="0.01" required>
                     </div>
                     <div class="form-group">
                         <label for="expense-date">Date</label>
@@ -195,7 +242,7 @@
 
                 <div class="form-group">
                     <label for="expense-category">Category</label>
-                    <div class="category-selector">
+                    <div class="category-input">
                         <select id="expense-category" required>
                             <option value="">Select category</option>
                             <option value="Food">🍽️ Food</option>
@@ -211,9 +258,8 @@
                             <option value="Travel">✈️ Travel</option>
                             <option value="Other">📦 Other</option>
                         </select>
-                        <button type="button" class="ai-suggest-btn" onclick="suggestCategory()">
-                            <span class="ai-icon">🤖</span>
-                            AI Suggest
+                        <button type="button" class="btn btn-ai" onclick="suggestCategory()">
+                            🤖 AI Suggest
                         </button>
                     </div>
                 </div>
@@ -224,35 +270,68 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="hideAddExpenseModal()">Cancel</button>
+                    <button type="button" class="btn btn-ghost" onclick="hideAddExpenseModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Add Expense</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- AI Insights Modal -->
-    <div class="modal" id="insights-modal">
-        <div class="modal-overlay" onclick="hideInsightsModal()"></div>
+    <!-- Budget Modal -->
+    <div class="modal" id="budget-modal">
+        <div class="modal-overlay" onclick="hideBudgetModal()"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">AI Insights</h3>
-                <button class="modal-close" onclick="hideInsightsModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
+                <h3 class="modal-title">Set Budget</h3>
+                <button class="modal-close" onclick="hideBudgetModal()">✕</button>
             </div>
-            <div class="insights-content" id="insights-content">
-                <!-- AI insights will be populated here -->
-            </div>
+            <form class="modal-form" id="budget-form">
+                <div class="form-group">
+                    <label for="budget-category">Category</label>
+                    <select id="budget-category" required>
+                        <option value="">Select category</option>
+                        <option value="Food">🍽️ Food</option>
+                        <option value="Transportation">🚗 Transportation</option>
+                        <option value="Bills">📋 Bills</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Housing">🏠 Housing</option>
+                        <option value="Groceries">🛒 Groceries</option>
+                        <option value="Health">💊 Health</option>
+                        <option value="Education">📚 Education</option>
+                        <option value="Personal Care">🧴 Personal Care</option>
+                        <option value="Savings">💰 Savings</option>
+                        <option value="Travel">✈️ Travel</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="budget-amount">Budget Amount (₹)</label>
+                        <input type="number" id="budget-amount" placeholder="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="budget-period">Period</label>
+                        <select id="budget-period" required>
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="hideBudgetModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Set Budget</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
             <p class="loading-text">Processing with AI...</p>
         </div>
     </div>
@@ -260,6 +339,7 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>

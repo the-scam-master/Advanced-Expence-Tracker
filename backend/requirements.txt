@@ -1,6 +1,6 @@
-fastapi
-uvicorn
-python-dotenv>
-pydantic>
-requests>
-google-generativeai>
+flask
+flask-cors
+python-dotenv
+google-generativeai
+requests
+uuid

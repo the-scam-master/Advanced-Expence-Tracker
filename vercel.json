@@ -19,5 +19,8 @@
       "src": "/(.*)",
       "dest": "/frontend/public/$1"
     }
-  ]
+  ],
+  "env": {
+    "FLASK_ENV": "production"
+  }
 }

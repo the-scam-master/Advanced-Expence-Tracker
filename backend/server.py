@@ -7,10 +7,10 @@ from typing import List, Optional, Dict, Any
 import os
 import logging
 from pathlib import Path
-import google.generativeai as genai
 import json
 from datetime import datetime, timedelta
 import uuid
+from transformers import pipeline  # Hugging Face transformers for gemma-3-27b-it
 
 # Initialize logging
 logging.basicConfig(
@@ -22,16 +22,16 @@ logger = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Configure Google Gemini
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-if not GOOGLE_API_KEY:
-    logger.error("GOOGLE_API_KEY is not set in the environment variables.")
-else:
-    try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        logger.info("Google Generative AI configured successfully.")
-    except Exception as e:
-        logger.error(f"Failed to configure Google Generative AI: {e}")
+# Initialize Hugging Face pipeline for gemma-3-27b-it
+HUGGINGFACE_TOKEN = os.getenv('HUGGINGFACE_TOKEN')
+if not HUGGINGFACE_TOKEN:
+    logger.error("HUGGINGFACE_TOKEN is not set in the environment variables.")
+try:
+    generator = pipeline('text-generation', model='google/gemma-3-27b-it', token=HUGGINGFACE_TOKEN, device=0)  # Assumes GPU
+    logger.info("Gemma-3-27b-it model initialized successfully.")
+except Exception as e:
+    logger.error(f"Failed to initialize Gemma-3-27b-it: {e}")
+    generator = None
 
 # Create the main app
 app = FastAPI(title="Smart Expense Tracker API", version="1.0.0",
@@ -43,12 +43,12 @@ api_router = APIRouter(prefix="/api")
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["https://advanced-expence-tracker.vercel.app"],  # Restrict to your domain
+    allow_origins=["https://advanced-expence-tracker.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Data Models
+# Data Models (same as previous server.py)
 class Expense(BaseModel):
     id: str
     name: str
@@ -97,30 +97,14 @@ class ComprehensiveAnalysisResponse(BaseModel):
     data: Dict[str, Any]
     error: Optional[str] = None
 
-# In-memory storage (replace with a database in production)
+# In-memory storage
 expenses_db = []
 budgets_db = []
 
-# AI Service Class with Improvements
+# AI Service Class for gemma-3-27b-it
 class AIExpenseService:
     def __init__(self):
-        self.model = None
-        if GOOGLE_API_KEY:
-            model_names = [
-                'gemini-1.5-flash',
-                'gemini-1.5-pro',
-                'gemini-2.5-flash',
-                'gemini-2.5-pro'
-            ]
-            for model_name in model_names:
-                try:
-                    self.model = genai.GenerativeModel(model_name)
-                    logger.info(f"AI model '{model_name}' initialized.")
-                    break
-                except Exception as e:
-                    logger.warning(f"Failed to initialize model '{model_name}': {e}")
-            if not self.model:
-                logger.error("No suitable AI model could be initialized.")
+        self.model = generator
 
     def predict_next_month_expenses(self, expenses: List[Expense]) -> AIInsight:
         if not self.model:
@@ -139,14 +123,16 @@ class AIExpenseService:
             Analyze the following expense data (last 90 days, in Indian Rupees ₹) to predict next month's spending patterns.
             Expense Data:
             {expense_data_str}
-            Provide a JSON response wrapped in ```json and ``` with:
+            Provide a JSON response with:
             - predicted_total: float
             - category_breakdown: object with categories (food, transportation, bills, entertainment, shopping, health, other)
             - insights: list of strings
             - recommendations: list of strings
             """
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()[7:-3].strip()
+            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
+            response_text = response[len(prompt):].strip()
+            if response_text.startswith('```json') and response_text.endswith('```'):
+                response_text = response_text[7:-3].strip()
             ai_data = json.loads(response_text)
             predicted_total = ai_data.get('predicted_total', 0.0)
             message = f"Predicted next month expenses: ₹{predicted_total:.2f}"
@@ -165,8 +151,8 @@ class AIExpenseService:
             Available Categories: {", ".join(valid_categories)}
             Respond with one word: the category name (lowercase).
             """
-            response = self.model.generate_content(prompt)
-            category = response.text.strip().lower()
+            response = self.model(prompt, max_length=50, num_return_sequences=1)[0]['generated_text']
+            category = response[len(prompt):].strip().lower()
             return category if category in valid_categories else "other"
         except Exception as e:
             logger.error(f"AI categorization error: {e}")
@@ -186,14 +172,16 @@ class AIExpenseService:
             prompt = f"""
             Analyze the expense data (in Indian Rupees ₹):
             {json.dumps(summary_data, indent=2)}
-            Provide 3-5 actionable insights in JSON format wrapped in ```json and ```:
+            Provide 3-5 actionable insights in JSON format:
             [
               {{"message": "string", "data": {{"category": "string"}}}},
               ...
             ]
             """
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()[7:-3].strip()
+            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
+            response_text = response[len(prompt):].strip()
+            if response_text.startswith('```json') and response_text.endswith('```'):
+                response_text = response_text[7:-3].strip()
             ai_insights = []
             for item in json.loads(response_text):
                 if "message" in item:
@@ -225,14 +213,16 @@ class AIExpenseService:
             - Total Expenses: ₹{total_expenses:.2f}
             - Savings Rate: {savings_rate:.2f}%
             - Category Spending: {json.dumps(category_spending, indent=2)}
-            Provide a JSON response wrapped in ```json and ``` with:
+            Provide a JSON response with:
             - score: float (0-100)
             - grade: string (A, B, C, D, F)
             - message: string
             - factors: list of strings
             """
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()[7:-3].strip()
+            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
+            response_text = response[len(prompt):].strip()
+            if response_text.startswith('```json') and response_text.endswith('```'):
+                response_text = response_text[7:-3].strip()
             return json.loads(response_text)
         except Exception as e:
             logger.error(f"Financial health error: {e}")
@@ -253,14 +243,16 @@ class AIExpenseService:
             - Total Income: ₹{total_income:.2f}
             - Total Expenses: ₹{total_expenses:.2f}
             - Category Spending: {json.dumps(category_spending, indent=2)}
-            Provide 3-5 savings advice in JSON format wrapped in ```json and ```:
+            Provide 3-5 savings advice in JSON format:
             [
               {{"title": "string", "message": "string", "priority": "string", "potential_savings": float}},
               ...
             ]
             """
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()[7:-3].strip()
+            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
+            response_text = response[len(prompt):].strip()
+            if response_text.startswith('```json') and response_text.endswith('```'):
+                response_text = response_text[7:-3].strip()
             return json.loads(response_text)
         except Exception as e:
             logger.error(f"Savings advice error: {e}")
@@ -269,7 +261,7 @@ class AIExpenseService:
 # Initialize AI service
 ai_service = AIExpenseService()
 
-# API Endpoints
+# API Endpoints (same as previous server.py)
 @api_router.get("/")
 async def root():
     return {"message": "Smart Expense Tracker API is running!"}
@@ -284,7 +276,7 @@ async def health_check():
 
 @api_router.get("/test", summary="Test endpoint")
 async def test_endpoint():
-    return {"message": "Test endpoint is working."}
+    return {"success": True, "message": "Test endpoint is working."}
 
 @api_router.get("/test-ai", summary="Test AI categorization")
 async def test_ai():
@@ -362,7 +354,7 @@ async def get_budget_alerts_api(request: BudgetAlertRequest):
             ))
     return alerts
 
-@api_router.get("/budgets", response_model=List[Budget], summary="Get all budgets")
+@api_router.get("/bUDgets", response_model=List[Budget], summary="Get all budgets")
 async def get_budgets():
     return budgets_db
 

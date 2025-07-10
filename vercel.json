@@ -22,10 +22,5 @@
   ],
   "env": {
     "FLASK_ENV": "production"
-  },
-  "functions": {
-    "backend/server.py": {
-      "timeout": 10
-    }
   }
 }

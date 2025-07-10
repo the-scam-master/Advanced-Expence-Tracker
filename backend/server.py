@@ -24,9 +24,10 @@ if env_file.exists():
     load_dotenv(env_file)
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')
 
-# Enforce valid API key
+# Check API key (don't fail if missing)
 if not GOOGLE_API_KEY or GOOGLE_API_KEY == 'your_google_api_key_here':
-    raise RuntimeError("GOOGLE_API_KEY not found or invalid in environment.")
+    logger.warning("GOOGLE_API_KEY not found or invalid in environment. AI features will be disabled.")
+    GOOGLE_API_KEY = None
 
 # Configure Google Gemini AI
 AI_ENABLED = False
@@ -36,7 +37,7 @@ try:
     logger.info("Google Generative AI configured successfully.")
 except Exception as e:
     logger.error(f"Failed to configure Google Generative AI: {e}")
-    raise  # Re-raise to fail fast
+    # Don't raise here, let the app start without AI
 
 # Create Flask app
 app = Flask(__name__)
@@ -109,16 +110,23 @@ class AIExpenseService:
         self.model = None
         if AI_ENABLED:
             try:
+                # Try different models in order of preference
+                model_names = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
                 available_models = [m.name for m in genai.list_models()]
                 logger.info(f"Available models: {available_models}")
-                self.model = genai.GenerativeModel('gemma-3-27b-it')
-                if 'gemma-3-27b-it' not in available_models:
-                    raise ValueError("gemma-3-27b-it not available with this API key.")
-                logger.info(f"AI model initialized: {self.model.name}")
+                
+                for model_name in model_names:
+                    if model_name in available_models:
+                        self.model = genai.GenerativeModel(model_name)
+                        logger.info(f"AI model initialized: {self.model.name}")
+                        break
+                
+                if not self.model:
+                    logger.warning("No suitable AI model found, falling back to rule-based categorization")
+                    
             except Exception as e:
                 logger.error(f"Failed to initialize AI model: {e}")
                 self.model = None
-                return jsonify({"error": f"AI model initialization failed: {str(e)}"}), 500  # Debug output
 
     def categorize_expense(self, expense_name: str, amount: float) -> str:
         """Suggest expense category using AI"""
@@ -158,19 +166,56 @@ class AIExpenseService:
 
     def get_spending_insights(self, expense_list: List[Dict]) -> List[Dict]:
         """Get AI-powered spending insights"""
-        if not self.model or not expense_list:
+        if not expense_list:
             return [
+                {
+                    "type": "insight",
+                    "message": "Start tracking your expenses to get personalized insights.",
+                    "confidence": 0.7,
+                    "data": {}
+                }
+            ]
+            
+        if not self.model:
+            # Rule-based insights when AI is not available
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            category_breakdown = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_breakdown[cat] = category_breakdown.get(cat, 0) + exp['amount']
+            
+            insights = []
+            if total_expenses > 0:
+                max_category = max(category_breakdown.items(), key=lambda x: x[1])
+                insights.append({
+                    "type": "insight",
+                    "message": f"Your highest spending category is {max_category[0]} (₹{max_category[1]:.0f}). Consider setting a budget for this category.",
+                    "confidence": 0.8,
+                    "data": {"category": max_category[0]}
+                })
+                
+                if len(expense_list) > 10:
+                    insights.append({
+                        "type": "insight",
+                        "message": "You have many transactions. Consider consolidating small purchases to better track your spending.",
+                        "confidence": 0.7,
+                        "data": {}
+                    })
+                
+                if total_expenses > 5000:
+                    insights.append({
+                        "type": "insight",
+                        "message": "Your total expenses are ₹{:.0f}. Review your spending to identify areas for savings.",
+                        "confidence": 0.6,
+                        "data": {}
+                    })
+            
+            return insights if insights else [
                 {
                     "type": "insight",
                     "message": "Your spending patterns show consistent daily expenses. Consider setting a daily budget.",
                     "confidence": 0.7,
                     "data": {}
-                },
-                {
-                    "type": "insight", 
-                    "message": "Food expenses are your highest category. Look for meal prep opportunities to save money.",
-                    "confidence": 0.8,
-                    "data": {"category": "Food"}
                 }
             ]
             
@@ -353,6 +398,60 @@ class AIExpenseService:
                 }
             ]
         
+        if not self.model:
+            # Rule-based advice when AI is not available
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            category_totals = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+            
+            advice_list = []
+            
+            # Analyze highest spending categories
+            if category_totals:
+                sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+                top_category = sorted_categories[0]
+                
+                if top_category[1] > total_expenses * 0.3:
+                    advice_list.append({
+                        "type": "advice",
+                        "title": f"Reduce {top_category[0]} Spending",
+                        "message": f"You're spending ₹{top_category[1]:.0f} on {top_category[0]}. Consider setting a budget and looking for cost-cutting opportunities.",
+                        "priority": "high",
+                        "potential_savings": top_category[1] * 0.2
+                    })
+                
+                if len(expense_list) > 20:
+                    avg_expense = total_expenses / len(expense_list)
+                    if avg_expense > 500:
+                        advice_list.append({
+                            "type": "advice",
+                            "title": "Review Small Expenses",
+                            "message": f"Average expense is ₹{avg_expense:.0f}. Small daily expenses add up quickly. Track every rupee spent.",
+                            "priority": "medium",
+                            "potential_savings": total_expenses * 0.1
+                        })
+                
+                if not any(exp['category'] == 'Savings' for exp in expense_list):
+                    advice_list.append({
+                        "type": "advice",
+                        "title": "Build Emergency Fund",
+                        "message": "Start saving 10% of your income for emergencies. Aim for 3-6 months of expenses.",
+                        "priority": "high",
+                        "potential_savings": total_expenses * 0.1
+                    })
+            
+            return advice_list[:3] if advice_list else [
+                {
+                    "type": "advice",
+                    "title": "General Savings Tips",
+                    "message": "Track all expenses, set budgets, and look for ways to reduce spending in your highest categories.",
+                    "priority": "medium",
+                    "potential_savings": 0
+                }
+            ]
+        
         try:
             total_expenses = sum(exp['amount'] for exp in expense_list)
             category_totals = {}
@@ -426,16 +525,49 @@ class AIExpenseService:
 
     def predict_next_month_expenses(self, expense_list: List[Dict]) -> Dict:
         """Predict next month's expenses"""
-        if not self.model or not expense_list:
-            recent_expenses = expense_list[-30:] if len(expense_list) > 30 else expense_list
-            recent_total = sum(exp['amount'] for exp in recent_expenses)
-            predicted_total = recent_total * 1.1
+        if not expense_list:
             return {
                 "type": "prediction",
-                "message": f"Based on recent spending, predicted next month: ₹{predicted_total:.2f}",
-                "confidence": 0.6,
-                "data": {"predicted_total": predicted_total}
+                "message": "No expense data available for prediction. Start tracking expenses to get predictions.",
+                "confidence": 0.0,
+                "data": {"predicted_total": 0}
             }
+            
+        if not self.model:
+            # Rule-based prediction when AI is not available
+            recent_expenses = expense_list[-30:] if len(expense_list) > 30 else expense_list
+            recent_total = sum(exp['amount'] for exp in recent_expenses)
+            
+            # Simple prediction based on recent average
+            if len(recent_expenses) > 0:
+                avg_daily = recent_total / len(recent_expenses)
+                predicted_total = avg_daily * 30  # Assume 30 days
+                
+                # Add some variation based on spending patterns
+                if recent_total > 10000:
+                    predicted_total *= 1.1  # High spender trend
+                elif recent_total < 3000:
+                    predicted_total *= 0.9  # Low spender trend
+                    
+                return {
+                    "type": "prediction",
+                    "message": f"Based on recent spending patterns, predicted next month: ₹{predicted_total:.0f}",
+                    "confidence": 0.6,
+                    "data": {
+                        "predicted_total": predicted_total,
+                        "insights": [
+                            "Prediction based on recent 30-day average",
+                            "Consider seasonal factors that may affect spending"
+                        ]
+                    }
+                }
+            else:
+                return {
+                    "type": "prediction",
+                    "message": "Insufficient data for prediction. Continue tracking expenses.",
+                    "confidence": 0.0,
+                    "data": {"predicted_total": 0}
+                }
             
         try:
             current_date = datetime.now()
@@ -490,6 +622,15 @@ ai_service = AIExpenseService()
 # Load sample data
 load_sample_data()
 
+# Test AI service
+if ai_service.model:
+    logger.info(f"AI service initialized with model: {ai_service.model.name}")
+    # Test categorization
+    test_category = ai_service.categorize_expense("Coffee", 100.0)
+    logger.info(f"Test categorization result: {test_category}")
+else:
+    logger.warning("AI service not available, using rule-based fallbacks")
+
 # API Routes
 @app.route('/api', methods=['GET'])
 @app.route('/api/', methods=['GET'])
@@ -498,20 +639,29 @@ def root():
         "message": "Smart Expense Tracker API v2.0",
         "status": "healthy",
         "ai_enabled": AI_ENABLED,
+        "ai_model": ai_service.model.name if ai_service.model else "None",
         "timestamp": datetime.now().isoformat()
     })
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    if not ai_service.model:
-        return jsonify({"error": "AI service failed to initialize"}), 500
     return jsonify({
         "status": "healthy",
         "ai_service": "available" if ai_service.model else "disabled",
+        "ai_model": ai_service.model.name if ai_service.model else "None",
         "api_key_configured": bool(GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here'),
         "data_count": {"expenses": len(expenses), "budgets": len(budgets)},
         "timestamp": datetime.now().isoformat(),
         "available_models": [m.name for m in genai.list_models()] if AI_ENABLED else []
+    })
+
+@app.route('/api/test', methods=['GET'])
+def test_endpoint():
+    """Simple test endpoint to verify API is working"""
+    return jsonify({
+        "message": "API is working!",
+        "test_categorization": ai_service.categorize_expense("Test Coffee", 150.0),
+        "timestamp": datetime.now().isoformat()
     })
 
 @app.route('/api/expenses', methods=['GET'])

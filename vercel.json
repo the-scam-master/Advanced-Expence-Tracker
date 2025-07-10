@@ -6,14 +6,14 @@
       "use": "@vercel/static"
     },
     {
-      "src": "backend/server.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/server.py"
+      "dest": "/api/index.py"
     },
     {
       "src": "/(.*)",
@@ -22,5 +22,10 @@
   ],
   "env": {
     "FLASK_ENV": "production"
+  },
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9"
+    }
   }
 }

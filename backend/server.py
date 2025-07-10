@@ -93,7 +93,7 @@ class AIExpenseService:
         self.model = None
         if GOOGLE_API_KEY:
             # Try multiple valid model names to ensure compatibility
-            model_names = ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro']
+            model_names = ['gemma-3-27b-it']
             for model_name in model_names:
                 try:
                     self.model = genai.GenerativeModel(model_name)

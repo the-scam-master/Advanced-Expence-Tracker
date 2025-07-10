@@ -2111,7 +2111,7 @@
     });
 
     // AI Functions
-    const API_BASE_URL = window.location.origin + '/api';
+    const API_BASE_URL = 'http://localhost:8001/api';
 
     async function refreshAI() {
         const loadingEl = document.getElementById('ai-loading');
@@ -2121,12 +2121,6 @@
         contentEl.style.display = 'none';
         
         try {
-            // First check if API is available
-            const healthResponse = await fetch(`${API_BASE_URL}/health`);
-            if (!healthResponse.ok) {
-                throw new Error('API not available');
-            }
-            
             // Get comprehensive AI analysis
             const response = await fetch(`${API_BASE_URL}/ai/comprehensive-analysis`, {
                 method: 'POST',
@@ -2148,10 +2142,6 @@
                     }))
                 })
             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
             
             const result = await response.json();
             
@@ -2302,10 +2292,6 @@
             const response = await fetch(`${API_BASE_URL}/expenses/categorize?expense_name=${encodeURIComponent(name)}&amount=${amount}`, {
                 method: 'GET'
             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
             
             const result = await response.json();
             

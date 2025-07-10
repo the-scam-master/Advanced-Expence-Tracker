@@ -1,7 +1,5 @@
-fastapi
-uvicorn
+flask
+flask-cors
 python-dotenv
-pydantic
 google-generativeai
-numpy
-scikit-learn
+requests

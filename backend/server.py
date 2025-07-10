@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -23,9 +22,7 @@ ROOT_DIR = Path(__file__).parent
 env_file = ROOT_DIR / '.env'
 if env_file.exists():
     load_dotenv(env_file)
-
-# Configure Google Gemini AI
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')  # Default to placeholder if not set
 AI_ENABLED = False
 
 if GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here':
@@ -37,7 +34,7 @@ if GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here':
         logger.error(f"Failed to configure Google Generative AI: {e}")
         AI_ENABLED = False
 else:
-    logger.warning("GOOGLE_API_KEY not found. AI features will be disabled.")
+    logger.warning("GOOGLE_API_KEY not found or invalid. AI features will be disabled.")
 
 # Create Flask app
 app = Flask(__name__)
@@ -110,15 +107,19 @@ class AIExpenseService:
         self.model = None
         if AI_ENABLED:
             try:
+                available_models = [m.name for m in genai.list_models()]
+                logger.info(f"Available models: {available_models}")
                 self.model = genai.GenerativeModel('gemma-3-27b-it')
-                logger.info("AI model 'gemma-3-27b-it' initialized.")
+                if self.model:
+                    logger.info(f"AI model initialized: {self.model.name}")
+                else:
+                    logger.warning("No compatible AI model found.")
             except Exception as e:
                 logger.error(f"Failed to initialize AI model: {e}")
 
     def categorize_expense(self, expense_name: str, amount: float) -> str:
         """Suggest expense category using AI"""
         if not self.model:
-            # Fallback rule-based categorization
             name_lower = expense_name.lower()
             if any(word in name_lower for word in ['coffee', 'tea', 'lunch', 'dinner', 'food', 'restaurant', 'cafe']):
                 return "Food"
@@ -155,7 +156,6 @@ class AIExpenseService:
     def get_spending_insights(self, expense_list: List[Dict]) -> List[Dict]:
         """Get AI-powered spending insights"""
         if not self.model or not expense_list:
-            # Return sample insights if AI is not available
             return [
                 {
                     "type": "insight",
@@ -196,7 +196,6 @@ class AIExpenseService:
             response = self.model.generate_content(prompt)
             response_text = response.text.strip()
             
-            # Clean response
             if response_text.startswith("```json") and response_text.endswith("```"):
                 response_text = response_text[7:-3].strip()
 
@@ -234,15 +233,11 @@ class AIExpenseService:
             total_expenses = sum(exp['amount'] for exp in expense_list)
             total_income = sum(inc['amount'] for inc in income_list) if income_list else total_expenses * 1.2  # Estimate
             
-            # Calculate basic metrics
             savings_rate = max(0, (total_income - total_expenses) / total_income) if total_income > 0 else 0
             expense_diversity = len(set(exp['category'] for exp in expense_list))
             avg_daily_spending = total_expenses / max(len(set(exp['date'] for exp in expense_list)), 1)
             
-            # Calculate score (0-100)
             score = 0
-            
-            # Savings rate (40% weight)
             if savings_rate >= 0.3:
                 score += 40
             elif savings_rate >= 0.2:
@@ -252,7 +247,6 @@ class AIExpenseService:
             elif savings_rate >= 0:
                 score += 10
             
-            # Expense diversity (20% weight)
             if expense_diversity >= 8:
                 score += 20
             elif expense_diversity >= 5:
@@ -262,7 +256,6 @@ class AIExpenseService:
             else:
                 score += 5
             
-            # Spending consistency (20% weight)
             if avg_daily_spending <= 500:
                 score += 20
             elif avg_daily_spending <= 1000:
@@ -272,7 +265,6 @@ class AIExpenseService:
             else:
                 score += 5
             
-            # Category balance (20% weight)
             category_totals = {}
             for exp in expense_list:
                 cat = exp['category']
@@ -288,7 +280,6 @@ class AIExpenseService:
             else:
                 score += 5
             
-            # Determine grade
             if score >= 90:
                 grade = "A+"
                 message = "Excellent financial health! You're managing your money very well."
@@ -308,22 +299,17 @@ class AIExpenseService:
                 grade = "D"
                 message = "Your financial health requires immediate attention."
             
-            # Generate factors and recommendations
             factors = []
             recommendations = []
-            
             if savings_rate < 0.2:
                 factors.append("Low savings rate")
                 recommendations.append("Increase your savings by 20% of income")
-            
             if expense_diversity < 5:
                 factors.append("Limited expense categories")
                 recommendations.append("Diversify your spending across more categories")
-            
             if avg_daily_spending > 1000:
                 factors.append("High daily spending")
                 recommendations.append("Reduce daily expenses and look for cost-cutting opportunities")
-            
             if max_category_percentage > 0.5:
                 factors.append("Over-concentration in one category")
                 recommendations.append(f"Reduce spending in {max(category_totals, key=category_totals.get)} category")
@@ -341,7 +327,6 @@ class AIExpenseService:
                     "max_category_percentage": round(max_category_percentage * 100, 1)
                 }
             }
-            
         except Exception as e:
             logger.error(f"Financial health score calculation error: {e}")
             return {
@@ -372,12 +357,9 @@ class AIExpenseService:
                 cat = exp['category']
                 category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
             
-            # Find highest spending categories
             sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
-            
             advice_list = []
             
-            # Food category advice
             if 'Food' in category_totals and category_totals['Food'] > total_expenses * 0.3:
                 advice_list.append({
                     "type": "advice",
@@ -387,7 +369,6 @@ class AIExpenseService:
                     "potential_savings": category_totals['Food'] * 0.25
                 })
             
-            # Transportation advice
             if 'Transportation' in category_totals and category_totals['Transportation'] > total_expenses * 0.2:
                 advice_list.append({
                     "type": "advice",
@@ -397,7 +378,6 @@ class AIExpenseService:
                     "potential_savings": category_totals['Transportation'] * 0.15
                 })
             
-            # Entertainment advice
             if 'Entertainment' in category_totals and category_totals['Entertainment'] > total_expenses * 0.15:
                 advice_list.append({
                     "type": "advice",
@@ -407,7 +387,6 @@ class AIExpenseService:
                     "potential_savings": category_totals['Entertainment'] * 0.20
                 })
             
-            # General advice
             if len(expense_list) > 20:
                 avg_expense = total_expenses / len(expense_list)
                 if avg_expense > 500:
@@ -419,7 +398,6 @@ class AIExpenseService:
                         "potential_savings": total_expenses * 0.10
                     })
             
-            # Emergency fund advice
             if not any(exp['category'] == 'Savings' for exp in expense_list):
                 advice_list.append({
                     "type": "advice",
@@ -429,11 +407,8 @@ class AIExpenseService:
                     "potential_savings": total_expenses * 0.10
                 })
             
-            # Sort by potential savings
             advice_list.sort(key=lambda x: x['potential_savings'], reverse=True)
-            
-            return advice_list[:5]  # Return top 5 advice
-            
+            return advice_list[:5]
         except Exception as e:
             logger.error(f"Savings advice error: {e}")
             return [
@@ -449,11 +424,9 @@ class AIExpenseService:
     def predict_next_month_expenses(self, expense_list: List[Dict]) -> Dict:
         """Predict next month's expenses"""
         if not self.model or not expense_list:
-            # Calculate simple prediction based on recent data
             recent_expenses = expense_list[-30:] if len(expense_list) > 30 else expense_list
             recent_total = sum(exp['amount'] for exp in recent_expenses)
-            predicted_total = recent_total * 1.1  # Simple 10% increase prediction
-            
+            predicted_total = recent_total * 1.1
             return {
                 "type": "prediction",
                 "message": f"Based on recent spending, predicted next month: ₹{predicted_total:.2f}",
@@ -462,7 +435,6 @@ class AIExpenseService:
             }
             
         try:
-            # Filter recent expenses (last 60 days)
             current_date = datetime.now()
             recent_expenses = []
             for exp in expense_list:
@@ -474,7 +446,7 @@ class AIExpenseService:
                     continue
 
             if not recent_expenses:
-                return self.predict_next_month_expenses([])  # Fallback
+                return self.predict_next_month_expenses([])
 
             total_recent = sum(exp['amount'] for exp in recent_expenses)
             
@@ -504,10 +476,10 @@ class AIExpenseService:
                     "data": ai_data
                 }
             except json.JSONDecodeError:
-                return self.predict_next_month_expenses([])  # Fallback
+                return self.predict_next_month_expenses([])
         except Exception as e:
             logger.error(f"AI prediction error: {e}")
-            return self.predict_next_month_expenses([])  # Fallback
+            return self.predict_next_month_expenses([])
 
 # Initialize AI service
 ai_service = AIExpenseService()
@@ -533,7 +505,8 @@ def health_check():
         "ai_service": "available" if ai_service.model else "disabled",
         "api_key_configured": bool(GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here'),
         "data_count": {"expenses": len(expenses), "budgets": len(budgets)},
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "available_models": [m.name for m in genai.list_models()] if AI_ENABLED else []
     })
 
 @app.route('/api/expenses', methods=['GET'])
@@ -549,13 +522,11 @@ def add_expense():
     try:
         data = request.get_json()
         
-        # Validate required fields
         required_fields = ['name', 'amount', 'date', 'category']
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
             return jsonify({"success": False, "error": f"Missing fields: {', '.join(missing_fields)}"}), 400
 
-        # Validate data types
         try:
             amount = float(data['amount'])
             if amount <= 0:
@@ -563,7 +534,6 @@ def add_expense():
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "Invalid amount"}), 400
 
-        # Validate date format
         try:
             datetime.strptime(data['date'], '%Y-%m-%d')
         except ValueError:
@@ -579,7 +549,7 @@ def add_expense():
             'created_at': datetime.now().isoformat()
         }
         
-        expenses.insert(0, expense)  # Add to beginning
+        expenses.insert(0, expense)
         return jsonify({"success": True, "data": expense}), 201
     except Exception as e:
         logger.error(f"Error adding expense: {e}")
@@ -626,7 +596,7 @@ def categorize_expense():
 def get_insights():
     try:
         data = request.get_json() or {}
-        expense_list = data.get('expenses', expenses)  # Use provided expenses or default
+        expense_list = data.get('expenses', expenses)
         insights = ai_service.get_spending_insights(expense_list)
         return jsonify({"success": True, "data": insights})
     except Exception as e:
@@ -703,7 +673,6 @@ def get_comprehensive_analysis():
         expense_list = data.get('expenses', expenses)
         income_list = data.get('income', [])
         
-        # Get all AI insights
         insights = ai_service.get_spending_insights(expense_list)
         prediction = ai_service.predict_next_month_expenses(expense_list)
         health_score = ai_service.calculate_financial_health_score(expense_list, income_list)
@@ -777,22 +746,18 @@ def add_budget():
 @app.route('/api/analytics', methods=['GET'])
 def get_analytics():
     try:
-        # Calculate basic analytics
         total_expenses = sum(exp['amount'] for exp in expenses)
         
-        # Category breakdown
         category_totals = {}
         for exp in expenses:
             cat = exp['category']
             category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
         
-        # Monthly trend (last 6 months)
         monthly_data = {}
         for exp in expenses:
-            month = exp['date'][:7]  # YYYY-MM
+            month = exp['date'][:7]
             monthly_data[month] = monthly_data.get(month, 0) + exp['amount']
         
-        # Sort by month and take last 6
         sorted_months = sorted(monthly_data.items())[-6:]
         
         analytics = {
@@ -815,7 +780,6 @@ def get_budget_alerts():
         current_month = datetime.now().strftime('%Y-%m')
         
         for budget in budgets:
-            # Calculate spent amount for current month
             spent = sum(
                 exp['amount'] for exp in expenses 
                 if exp['category'] == budget['category'] and exp['date'].startswith(current_month)
@@ -823,7 +787,7 @@ def get_budget_alerts():
             
             percentage = (spent / budget['amount']) * 100 if budget['amount'] > 0 else 0
             
-            if percentage >= 70:  # Alert threshold
+            if percentage >= 70:
                 alert_type = "warning" if percentage < 90 else "danger"
                 alerts.append({
                     "category": budget['category'],
@@ -839,6 +803,4 @@ def get_budget_alerts():
         return jsonify({"success": True, "data": []})
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8001))
-    debug = os.environ.get('FLASK_ENV') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    pass  # Vercel handles runtime

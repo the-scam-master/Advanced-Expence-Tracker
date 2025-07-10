@@ -219,11 +219,239 @@ class AIExpenseService:
             logger.error(f"AI insights error: {e}")
             return self.get_spending_insights([])  # Fallback
 
+    def calculate_financial_health_score(self, expense_list: List[Dict], income_list: List[Dict] = None) -> Dict:
+        """Calculate financial health score based on spending patterns"""
+        if not expense_list:
+            return {
+                "score": 75,
+                "grade": "B",
+                "message": "No spending data available. Start tracking to get personalized insights.",
+                "factors": ["No data available"],
+                "recommendations": ["Begin tracking your expenses", "Set up a budget", "Monitor your spending patterns"]
+            }
+        
+        try:
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            total_income = sum(inc['amount'] for inc in income_list) if income_list else total_expenses * 1.2  # Estimate
+            
+            # Calculate basic metrics
+            savings_rate = max(0, (total_income - total_expenses) / total_income) if total_income > 0 else 0
+            expense_diversity = len(set(exp['category'] for exp in expense_list))
+            avg_daily_spending = total_expenses / max(len(set(exp['date'] for exp in expense_list)), 1)
+            
+            # Calculate score (0-100)
+            score = 0
+            
+            # Savings rate (40% weight)
+            if savings_rate >= 0.3:
+                score += 40
+            elif savings_rate >= 0.2:
+                score += 30
+            elif savings_rate >= 0.1:
+                score += 20
+            elif savings_rate >= 0:
+                score += 10
+            
+            # Expense diversity (20% weight)
+            if expense_diversity >= 8:
+                score += 20
+            elif expense_diversity >= 5:
+                score += 15
+            elif expense_diversity >= 3:
+                score += 10
+            else:
+                score += 5
+            
+            # Spending consistency (20% weight)
+            if avg_daily_spending <= 500:
+                score += 20
+            elif avg_daily_spending <= 1000:
+                score += 15
+            elif avg_daily_spending <= 2000:
+                score += 10
+            else:
+                score += 5
+            
+            # Category balance (20% weight)
+            category_totals = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+            
+            max_category_percentage = max(category_totals.values()) / total_expenses if total_expenses > 0 else 0
+            if max_category_percentage <= 0.3:
+                score += 20
+            elif max_category_percentage <= 0.5:
+                score += 15
+            elif max_category_percentage <= 0.7:
+                score += 10
+            else:
+                score += 5
+            
+            # Determine grade
+            if score >= 90:
+                grade = "A+"
+                message = "Excellent financial health! You're managing your money very well."
+            elif score >= 80:
+                grade = "A"
+                message = "Great financial health! Keep up the good work."
+            elif score >= 70:
+                grade = "B+"
+                message = "Good financial health with room for improvement."
+            elif score >= 60:
+                grade = "B"
+                message = "Fair financial health. Consider the recommendations below."
+            elif score >= 50:
+                grade = "C"
+                message = "Your financial health needs attention. Focus on the areas below."
+            else:
+                grade = "D"
+                message = "Your financial health requires immediate attention."
+            
+            # Generate factors and recommendations
+            factors = []
+            recommendations = []
+            
+            if savings_rate < 0.2:
+                factors.append("Low savings rate")
+                recommendations.append("Increase your savings by 20% of income")
+            
+            if expense_diversity < 5:
+                factors.append("Limited expense categories")
+                recommendations.append("Diversify your spending across more categories")
+            
+            if avg_daily_spending > 1000:
+                factors.append("High daily spending")
+                recommendations.append("Reduce daily expenses and look for cost-cutting opportunities")
+            
+            if max_category_percentage > 0.5:
+                factors.append("Over-concentration in one category")
+                recommendations.append(f"Reduce spending in {max(category_totals, key=category_totals.get)} category")
+            
+            return {
+                "score": score,
+                "grade": grade,
+                "message": message,
+                "factors": factors,
+                "recommendations": recommendations,
+                "metrics": {
+                    "savings_rate": round(savings_rate * 100, 1),
+                    "expense_diversity": expense_diversity,
+                    "avg_daily_spending": round(avg_daily_spending, 2),
+                    "max_category_percentage": round(max_category_percentage * 100, 1)
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Financial health score calculation error: {e}")
+            return {
+                "score": 50,
+                "grade": "C",
+                "message": "Unable to calculate financial health score.",
+                "factors": ["Calculation error"],
+                "recommendations": ["Contact support if this persists"]
+            }
+
+    def get_savings_advice(self, expense_list: List[Dict], income_list: List[Dict] = None) -> List[Dict]:
+        """Get AI-powered savings advice"""
+        if not expense_list:
+            return [
+                {
+                    "type": "advice",
+                    "title": "Start Tracking",
+                    "message": "Begin by tracking all your expenses to understand your spending patterns.",
+                    "priority": "high",
+                    "potential_savings": 0
+                }
+            ]
+        
+        try:
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            category_totals = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+            
+            # Find highest spending categories
+            sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+            
+            advice_list = []
+            
+            # Food category advice
+            if 'Food' in category_totals and category_totals['Food'] > total_expenses * 0.3:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Optimize Food Spending",
+                    "message": f"You're spending ₹{category_totals['Food']:.0f} on food. Consider meal prepping, cooking at home, and using grocery lists to save 20-30%.",
+                    "priority": "high",
+                    "potential_savings": category_totals['Food'] * 0.25
+                })
+            
+            # Transportation advice
+            if 'Transportation' in category_totals and category_totals['Transportation'] > total_expenses * 0.2:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Reduce Transportation Costs",
+                    "message": f"Transportation costs are ₹{category_totals['Transportation']:.0f}. Consider public transport, carpooling, or walking for short distances.",
+                    "priority": "medium",
+                    "potential_savings": category_totals['Transportation'] * 0.15
+                })
+            
+            # Entertainment advice
+            if 'Entertainment' in category_totals and category_totals['Entertainment'] > total_expenses * 0.15:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Smart Entertainment Choices",
+                    "message": f"Entertainment spending is ₹{category_totals['Entertainment']:.0f}. Look for free events, use student discounts, and limit premium subscriptions.",
+                    "priority": "medium",
+                    "potential_savings": category_totals['Entertainment'] * 0.20
+                })
+            
+            # General advice
+            if len(expense_list) > 20:
+                avg_expense = total_expenses / len(expense_list)
+                if avg_expense > 500:
+                    advice_list.append({
+                        "type": "advice",
+                        "title": "Review Small Expenses",
+                        "message": f"Average expense is ₹{avg_expense:.0f}. Small daily expenses add up quickly. Track every rupee spent.",
+                        "priority": "medium",
+                        "potential_savings": total_expenses * 0.10
+                    })
+            
+            # Emergency fund advice
+            if not any(exp['category'] == 'Savings' for exp in expense_list):
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Build Emergency Fund",
+                    "message": "Start saving 10% of your income for emergencies. Aim for 3-6 months of expenses.",
+                    "priority": "high",
+                    "potential_savings": total_expenses * 0.10
+                })
+            
+            # Sort by potential savings
+            advice_list.sort(key=lambda x: x['potential_savings'], reverse=True)
+            
+            return advice_list[:5]  # Return top 5 advice
+            
+        except Exception as e:
+            logger.error(f"Savings advice error: {e}")
+            return [
+                {
+                    "type": "advice",
+                    "title": "General Savings Tips",
+                    "message": "Track all expenses, set budgets, and look for ways to reduce spending in your highest categories.",
+                    "priority": "medium",
+                    "potential_savings": 0
+                }
+            ]
+
     def predict_next_month_expenses(self, expense_list: List[Dict]) -> Dict:
         """Predict next month's expenses"""
         if not self.model or not expense_list:
             # Calculate simple prediction based on recent data
-            recent_total = sum(exp['amount'] for exp in expense_list[-30:] if len(expense_list) > 30 else expense_list)
+            recent_expenses = expense_list[-30:] if len(expense_list) > 30 else expense_list
+            recent_total = sum(exp['amount'] for exp in recent_expenses)
             predicted_total = recent_total * 1.1  # Simple 10% increase prediction
             
             return {
@@ -421,6 +649,89 @@ def predict_expenses():
                 "message": "Unable to generate prediction",
                 "confidence": 0.0,
                 "data": {}
+            }
+        })
+
+@app.route('/api/ai/health-score', methods=['POST'])
+def get_financial_health_score():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        health_score = ai_service.calculate_financial_health_score(expense_list, income_list)
+        return jsonify({"success": True, "data": health_score})
+    except Exception as e:
+        logger.error(f"Error calculating financial health score: {e}")
+        return jsonify({
+            "success": True,
+            "data": {
+                "score": 50,
+                "grade": "C",
+                "message": "Unable to calculate financial health score.",
+                "factors": ["Calculation error"],
+                "recommendations": ["Contact support if this persists"]
+            }
+        })
+
+@app.route('/api/ai/savings-advice', methods=['POST'])
+def get_savings_advice():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        advice = ai_service.get_savings_advice(expense_list, income_list)
+        return jsonify({"success": True, "data": advice})
+    except Exception as e:
+        logger.error(f"Error getting savings advice: {e}")
+        return jsonify({
+            "success": True,
+            "data": [
+                {
+                    "type": "advice",
+                    "title": "General Savings Tips",
+                    "message": "Track all expenses, set budgets, and look for ways to reduce spending.",
+                    "priority": "medium",
+                    "potential_savings": 0
+                }
+            ]
+        })
+
+@app.route('/api/ai/comprehensive-analysis', methods=['POST'])
+def get_comprehensive_analysis():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        
+        # Get all AI insights
+        insights = ai_service.get_spending_insights(expense_list)
+        prediction = ai_service.predict_next_month_expenses(expense_list)
+        health_score = ai_service.calculate_financial_health_score(expense_list, income_list)
+        savings_advice = ai_service.get_savings_advice(expense_list, income_list)
+        
+        comprehensive_data = {
+            "insights": insights,
+            "prediction": prediction,
+            "health_score": health_score,
+            "savings_advice": savings_advice,
+            "summary": {
+                "total_expenses": sum(exp['amount'] for exp in expense_list),
+                "expense_count": len(expense_list),
+                "categories_analyzed": len(set(exp['category'] for exp in expense_list))
+            }
+        }
+        
+        return jsonify({"success": True, "data": comprehensive_data})
+    except Exception as e:
+        logger.error(f"Error getting comprehensive analysis: {e}")
+        return jsonify({
+            "success": True,
+            "data": {
+                "insights": [],
+                "prediction": {"message": "Unable to generate prediction"},
+                "health_score": {"score": 50, "grade": "C", "message": "Unable to calculate"},
+                "savings_advice": [],
+                "summary": {"total_expenses": 0, "expense_count": 0, "categories_analyzed": 0}
             }
         })
 

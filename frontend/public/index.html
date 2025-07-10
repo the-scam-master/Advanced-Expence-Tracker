@@ -749,6 +749,309 @@
             color: var(--accent-red);
         }
 
+        /* AI Components Styles */
+        .ai-loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading-spinner {
+            font-size: 32px;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+        }
+
+        .ai-section {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .ai-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .ai-section-header h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        /* Health Score Card */
+        .health-score-card {
+            background: var(--gradient-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .score-info h5 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .score-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .health-factors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .health-factor {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Insights Container */
+        .insights-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .insight-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .insight-card h5 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        .insight-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .empty-insights {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-insights i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Prediction Card */
+        .prediction-card {
+            background: var(--gradient-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .prediction-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-header i {
+            color: var(--accent-purple);
+            font-size: 18px;
+        }
+
+        .prediction-header h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .prediction-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Savings Advice */
+        .savings-advice-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .advice-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .advice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .advice-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .advice-priority {
+            background: var(--accent-orange);
+            color: var(--text-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .advice-priority.high {
+            background: var(--accent-red);
+        }
+
+        .advice-priority.medium {
+            background: var(--accent-orange);
+        }
+
+        .advice-priority.low {
+            background: var(--accent-green);
+        }
+
+        .advice-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .advice-savings {
+            font-size: 12px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .empty-advice {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-advice i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Categorization Demo */
+        .categorization-demo {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .demo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .demo-input input {
+            flex: 1;
+            min-width: 120px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .demo-input input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .categorization-result {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .categorization-result.success {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .categorization-result p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .categorization-result .suggested-category {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-top: 5px;
+        }
+
         @media (max-width: 480px) {
             .app-container {
                 max-width: 100%;
@@ -868,15 +1171,102 @@
                 <div class="section-header">
                     <h3 class="section-title">
                         <i class="fas fa-robot"></i>
-                        AI Assistant
+                        AI-Powered Intelligence
                     </h3>
                 </div>
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-robot"></i>
+                
+                <!-- AI Loading State -->
+                <div id="ai-loading" class="ai-loading" style="display: none;">
+                    <div class="loading-spinner">
+                        <i class="fas fa-cog fa-spin"></i>
                     </div>
-                    <div class="empty-text">AI Assistant</div>
-                    <div class="empty-subtext">Get smart insights and suggestions</div>
+                    <p>Analyzing your financial data...</p>
+                </div>
+
+                <!-- AI Content -->
+                <div id="ai-content">
+                    <!-- Financial Health Score -->
+                    <div class="ai-section">
+                        <div class="ai-section-header">
+                            <h4><i class="fas fa-heartbeat"></i> Financial Health Score</h4>
+                            <button class="refresh-btn" onclick="refreshAI()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div id="health-score-card" class="health-score-card">
+                            <div class="score-display">
+                                <div class="score-circle">
+                                    <span id="health-score">--</span>
+                                </div>
+                                <div class="score-info">
+                                    <h5 id="health-grade">--</h5>
+                                    <p id="health-message">Click refresh to analyze</p>
+                                </div>
+                            </div>
+                            <div id="health-factors" class="health-factors"></div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Insights -->
+                    <div class="ai-section">
+                        <div class="ai-section-header">
+                            <h4><i class="fas fa-lightbulb"></i> Smart Insights</h4>
+                        </div>
+                        <div id="insights-container" class="insights-container">
+                            <div class="empty-insights">
+                                <i class="fas fa-chart-line"></i>
+                                <p>No insights available yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Predictive Analytics -->
+                    <div class="ai-section">
+                        <div class="ai-section-header">
+                            <h4><i class="fas fa-chart-line"></i> Predictive Analytics</h4>
+                        </div>
+                        <div id="prediction-card" class="prediction-card">
+                            <div class="prediction-header">
+                                <i class="fas fa-crystal-ball"></i>
+                                <h5>Next Month Prediction</h5>
+                            </div>
+                            <div id="prediction-content" class="prediction-content">
+                                <p>Click refresh to get predictions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Savings Advice -->
+                    <div class="ai-section">
+                        <div class="ai-section-header">
+                            <h4><i class="fas fa-piggy-bank"></i> Savings Advice</h4>
+                        </div>
+                        <div id="savings-advice-container" class="savings-advice-container">
+                            <div class="empty-advice">
+                                <i class="fas fa-coins"></i>
+                                <p>No advice available yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Categorization -->
+                    <div class="ai-section">
+                        <div class="ai-section-header">
+                            <h4><i class="fas fa-tags"></i> Smart Categorization</h4>
+                        </div>
+                        <div class="categorization-demo">
+                            <div class="demo-input">
+                                <input type="text" id="expense-name-input" placeholder="Enter expense name (e.g., Coffee at Starbucks)">
+                                <input type="number" id="expense-amount-input" placeholder="Amount" step="0.01">
+                                <button onclick="testCategorization()" class="btn btn-primary">
+                                    <i class="fas fa-magic"></i> Categorize
+                                </button>
+                            </div>
+                            <div id="categorization-result" class="categorization-result">
+                                <p>Try entering an expense to see AI categorization</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1662,6 +2052,9 @@
             renderCalendar();
         } else if (tabName === 'budget') {
             renderBudgetList();
+        } else if (tabName === 'ai') {
+            // Auto-refresh AI when switching to AI tab
+            refreshAI();
         }
     }
 
@@ -1716,6 +2109,228 @@
             alert('Please enter a valid budget amount.');
         }
     });
+
+    // AI Functions
+    const API_BASE_URL = 'http://localhost:8001/api';
+
+    async function refreshAI() {
+        const loadingEl = document.getElementById('ai-loading');
+        const contentEl = document.getElementById('ai-content');
+        
+        loadingEl.style.display = 'block';
+        contentEl.style.display = 'none';
+        
+        try {
+            // Get comprehensive AI analysis
+            const response = await fetch(`${API_BASE_URL}/ai/comprehensive-analysis`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    expenses: transactions.filter(t => t.amount < 0).map(t => ({
+                        name: t.name,
+                        amount: Math.abs(t.amount),
+                        category: t.category,
+                        date: t.date
+                    })),
+                    income: transactions.filter(t => t.amount > 0).map(t => ({
+                        name: t.name,
+                        amount: t.amount,
+                        category: t.category,
+                        date: t.date
+                    }))
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                updateHealthScore(result.data.health_score);
+                updateInsights(result.data.insights);
+                updatePrediction(result.data.prediction);
+                updateSavingsAdvice(result.data.savings_advice);
+            } else {
+                console.error('AI analysis failed:', result.error);
+                showAIError();
+            }
+        } catch (error) {
+            console.error('AI analysis error:', error);
+            showAIError();
+        } finally {
+            loadingEl.style.display = 'none';
+            contentEl.style.display = 'block';
+        }
+    }
+
+    function updateHealthScore(healthData) {
+        const scoreEl = document.getElementById('health-score');
+        const gradeEl = document.getElementById('health-grade');
+        const messageEl = document.getElementById('health-message');
+        const factorsEl = document.getElementById('health-factors');
+        
+        scoreEl.textContent = healthData.score;
+        gradeEl.textContent = healthData.grade;
+        messageEl.textContent = healthData.message;
+        
+        // Update score circle color based on grade
+        const scoreCircle = scoreEl.parentElement;
+        scoreCircle.style.background = getScoreColor(healthData.score);
+        
+        // Update factors
+        factorsEl.innerHTML = '';
+        if (healthData.factors && healthData.factors.length > 0) {
+            healthData.factors.forEach(factor => {
+                const factorEl = document.createElement('span');
+                factorEl.className = 'health-factor';
+                factorEl.textContent = factor;
+                factorsEl.appendChild(factorEl);
+            });
+        }
+    }
+
+    function getScoreColor(score) {
+        if (score >= 90) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        if (score >= 80) return 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
+        if (score >= 70) return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        if (score >= 60) return 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)';
+        if (score >= 50) return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        return 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
+    }
+
+    function updateInsights(insights) {
+        const container = document.getElementById('insights-container');
+        
+        if (!insights || insights.length === 0) {
+            container.innerHTML = `
+                <div class="empty-insights">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No insights available yet</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        insights.forEach(insight => {
+            const insightEl = document.createElement('div');
+            insightEl.className = 'insight-card';
+            insightEl.innerHTML = `
+                <h5><i class="fas fa-lightbulb"></i> Smart Insight</h5>
+                <p>${insight.message}</p>
+            `;
+            container.appendChild(insightEl);
+        });
+    }
+
+    function updatePrediction(prediction) {
+        const contentEl = document.getElementById('prediction-content');
+        
+        if (prediction && prediction.message) {
+            contentEl.innerHTML = `
+                <p>${prediction.message}</p>
+                ${prediction.data && prediction.data.insights ? 
+                    `<div style="margin-top: 10px;">
+                        <strong>Key Insights:</strong>
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                            ${prediction.data.insights.map(insight => `<li>${insight}</li>`).join('')}
+                        </ul>
+                    </div>` : ''
+                }
+            `;
+        } else {
+            contentEl.innerHTML = '<p>Unable to generate prediction</p>';
+        }
+    }
+
+    function updateSavingsAdvice(advice) {
+        const container = document.getElementById('savings-advice-container');
+        
+        if (!advice || advice.length === 0) {
+            container.innerHTML = `
+                <div class="empty-advice">
+                    <i class="fas fa-coins"></i>
+                    <p>No advice available yet</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        advice.forEach(item => {
+            const adviceEl = document.createElement('div');
+            adviceEl.className = 'advice-card';
+            adviceEl.innerHTML = `
+                <div class="advice-header">
+                    <div class="advice-title">${item.title}</div>
+                    <span class="advice-priority ${item.priority}">${item.priority}</span>
+                </div>
+                <div class="advice-message">${item.message}</div>
+                ${item.potential_savings > 0 ? 
+                    `<div class="advice-savings">Potential savings: ₹${item.potential_savings.toFixed(0)}</div>` : ''
+                }
+            `;
+            container.appendChild(adviceEl);
+        });
+    }
+
+    async function testCategorization() {
+        const nameInput = document.getElementById('expense-name-input');
+        const amountInput = document.getElementById('expense-amount-input');
+        const resultEl = document.getElementById('categorization-result');
+        
+        const name = nameInput.value.trim();
+        const amount = parseFloat(amountInput.value);
+        
+        if (!name || isNaN(amount) || amount <= 0) {
+            resultEl.innerHTML = '<p>Please enter a valid expense name and amount</p>';
+            resultEl.className = 'categorization-result';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/categorize?expense_name=${encodeURIComponent(name)}&amount=${amount}`, {
+                method: 'GET'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                resultEl.innerHTML = `
+                    <p>AI suggests category:</p>
+                    <div class="suggested-category">${result.suggested_category}</div>
+                `;
+                resultEl.className = 'categorization-result success';
+            } else {
+                resultEl.innerHTML = '<p>Unable to categorize expense</p>';
+                resultEl.className = 'categorization-result';
+            }
+        } catch (error) {
+            console.error('Categorization error:', error);
+            resultEl.innerHTML = '<p>Error categorizing expense</p>';
+            resultEl.className = 'categorization-result';
+        }
+    }
+
+    function showAIError() {
+        const contentEl = document.getElementById('ai-content');
+        contentEl.innerHTML = `
+            <div class="ai-section">
+                <div class="ai-section-header">
+                    <h4><i class="fas fa-exclamation-triangle"></i> AI Service Unavailable</h4>
+                </div>
+                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    <i class="fas fa-robot" style="font-size: 32px; margin-bottom: 15px;"></i>
+                    <p>AI features are currently unavailable. Please try again later.</p>
+                    <button onclick="refreshAI()" class="btn btn-primary" style="margin-top: 15px;">
+                        <i class="fas fa-sync-alt"></i> Retry
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+
 
     // Initial render
     loadFromLocalStorage();

@@ -2,30 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/public/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/index.py",
+      "src": "server.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/public/$1"
+      "dest": "/server.py"
     }
-  ],
-  "env": {
-    "FLASK_ENV": "production"
-  },
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.9"
-    }
-  }
+  ]
 }

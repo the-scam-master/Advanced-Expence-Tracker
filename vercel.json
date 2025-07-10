@@ -2,12 +2,12 @@
   "version": 2,
   "builds": [
     {
+      "src": "frontend/public/**",
+      "use": "@vercel/static"
+    },
+    {
       "src": "backend/server.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb",
-        "runtime": "python3.12"
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -17,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/public/index.html"
+      "dest": "/frontend/public/$1"
     }
   ]
 }

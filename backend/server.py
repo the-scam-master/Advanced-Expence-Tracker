@@ -645,6 +645,12 @@ def root():
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    try:
+        available_models = [m.name for m in genai.list_models()] if AI_ENABLED else []
+    except Exception as e:
+        logger.warning(f"Could not list models: {e}")
+        available_models = []
+    
     return jsonify({
         "status": "healthy",
         "ai_service": "available" if ai_service.model else "disabled",
@@ -652,7 +658,7 @@ def health_check():
         "api_key_configured": bool(GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here'),
         "data_count": {"expenses": len(expenses), "budgets": len(budgets)},
         "timestamp": datetime.now().isoformat(),
-        "available_models": [m.name for m in genai.list_models()] if AI_ENABLED else []
+        "available_models": available_models
     })
 
 @app.route('/api/test', methods=['GET'])

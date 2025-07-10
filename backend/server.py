@@ -1,19 +1,14 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.concurrency import run_in_threadpool
-from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
 import os
 import logging
 from pathlib import Path
-import json
-from datetime import datetime, timedelta
-import uuid
 import google.generativeai as genai
-from collections import defaultdict
-import numpy as np
-from sklearn.linear_model import LinearRegression
+import json
+import uuid
+from datetime import datetime, timedelta
+from typing import List, Dict, Any
 
 # Initialize logging
 logging.basicConfig(
@@ -22,382 +17,795 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Load environment variables
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+env_file = ROOT_DIR / '.env'
+if env_file.exists():
+    load_dotenv(env_file)
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')
 
-# Configure Google Gemini
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-if not GOOGLE_API_KEY:
-    logger.error("GOOGLE_API_KEY is not set in the environment variables.")
-else:
-    try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        logger.info("Google Generative AI configured successfully.")
-    except Exception as e:
-        logger.error(f"Failed to configure Google Generative AI: {e}")
+# Enforce valid API key
+if not GOOGLE_API_KEY or GOOGLE_API_KEY == 'your_google_api_key_here':
+    raise RuntimeError("GOOGLE_API_KEY not found or invalid in environment.")
 
-# Create the main app
-app = FastAPI(title="Smart Expense Tracker API", version="1.0.0",
-              description="Backend API for Smart Expense Tracker with enhanced AI-powered insights.")
+# Configure Google Gemini AI
+AI_ENABLED = False
+try:
+    genai.configure(api_key=GOOGLE_API_KEY)
+    AI_ENABLED = True
+    logger.info("Google Generative AI configured successfully.")
+except Exception as e:
+    logger.error(f"Failed to configure Google Generative AI: {e}")
+    raise  # Re-raise to fail fast
 
-api_router = APIRouter(prefix="/api")
+# Create Flask app
+app = Flask(__name__)
+CORS(app, origins=["*"])
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["https://advanced-expence-tracker.vercel.app"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# In-memory storage (replace with database in production)
+expenses = []
+budgets = []
 
-# Data Models
-class Expense(BaseModel):
-    id: str
-    name: str
-    amount: float
-    date: str
-    category: str
-    description: Optional[str] = ""
+# Sample data for demo
+def load_sample_data():
+    global expenses, budgets
+    if not expenses:
+        sample_expenses = [
+            {
+                'id': str(uuid.uuid4()),
+                'name': 'Morning Coffee',
+                'amount': 120.0,
+                'date': '2025-01-09',
+                'category': 'Food',
+                'description': 'Daily coffee from cafe'
+            },
+            {
+                'id': str(uuid.uuid4()),
+                'name': 'Uber Ride',
+                'amount': 280.0,
+                'date': '2025-01-09',
+                'category': 'Transportation',
+                'description': 'Ride to office'
+            },
+            {
+                'id': str(uuid.uuid4()),
+                'name': 'Lunch',
+                'amount': 450.0,
+                'date': '2025-01-08',
+                'category': 'Food',
+                'description': 'Office lunch'
+            },
+            {
+                'id': str(uuid.uuid4()),
+                'name': 'Groceries',
+                'amount': 1200.0,
+                'date': '2025-01-07',
+                'category': 'Groceries',
+                'description': 'Weekly shopping'
+            }
+        ]
+        expenses.extend(sample_expenses)
+        
+    if not budgets:
+        sample_budgets = [
+            {
+                'id': str(uuid.uuid4()),
+                'category': 'Food',
+                'amount': 5000.0,
+                'period': 'monthly'
+            },
+            {
+                'id': str(uuid.uuid4()),
+                'category': 'Transportation',
+                'amount': 3000.0,
+                'period': 'monthly'
+            }
+        ]
+        budgets.extend(sample_budgets)
 
-class Budget(BaseModel):
-    id: str
-    category: str
-    amount: float
-    period: str = "monthly"
-
-class ExpenseAnalytics(BaseModel):
-    total_expenses: float
-    category_breakdown: Dict[str, float]
-    monthly_trend: List[Dict[str, Any]]
-
-class AIInsight(BaseModel):
-    type: str
-    message: str
-    confidence: float = Field(..., ge=0.0, le=1.0)
-    data: Dict[str, Any]
-
-class ExpenseListRequest(BaseModel):
-    expenses: List[Expense]
-
-class BudgetAlert(BaseModel):
-    category: str
-    budget_amount: float
-    spent_amount: float
-    percentage_used: float = Field(..., ge=0.0)
-    alert_type: str
-
-class BudgetAlertRequest(BaseModel):
-    expenses: List[Expense]
-    budgets: List[Budget]
-
-class ComprehensiveAnalysisRequest(BaseModel):
-    expenses: List[Expense]
-    budgets: List[Budget]
-
-class ComprehensiveAnalysisResponse(BaseModel):
-    success: bool
-    data: Dict[str, Any]
-    error: Optional[str] = None
-
-# In-memory storage
-expenses_db = []
-budgets_db = []
-
-# Enhanced AI Service Class
+# AI Service Class
 class AIExpenseService:
     def __init__(self):
         self.model = None
-        self.valid_categories = ["Food", "Transportation", "Bills", "Entertainment", "Housing", "Groceries", 
-                                "Health", "Education", "Personal Care", "Savings", "Travel", "Other"]
-        if GOOGLE_API_KEY:
+        if AI_ENABLED:
             try:
+                available_models = [m.name for m in genai.list_models()]
+                logger.info(f"Available models: {available_models}")
                 self.model = genai.GenerativeModel('gemma-3-27b-it')
-                logger.info("AI model 'gemma-3-27b-it' initialized.")
+                if 'gemma-3-27b-it' not in available_models:
+                    raise ValueError("gemma-3-27b-it not available with this API key.")
+                logger.info(f"AI model initialized: {self.model.name}")
             except Exception as e:
                 logger.error(f"Failed to initialize AI model: {e}")
-
-    def predict_next_month_expenses(self, expenses: List[Expense]) -> AIInsight:
-        if not self.model:
-            logger.warning("AI model not available for prediction.")
-            return AIInsight(type="prediction", message="AI service not available.", confidence=0.0, data={})
-
-        try:
-            # Filter recent expenses (last 90 days)
-            recent_expenses = [
-                exp for exp in expenses
-                if datetime.strptime(exp.date, '%Y-%m-%d') >= datetime.now() - timedelta(days=90)
-            ]
-            if not recent_expenses:
-                logger.info("Not enough recent expense data for AI prediction.")
-                return AIInsight(type="prediction", message="Not enough recent expense data for accurate prediction.", confidence=0.1, data={})
-
-            # Aggregate expenses by category and month for trend analysis
-            monthly_data = defaultdict(list)
-            for exp in recent_expenses:
-                date = datetime.strptime(exp.date, '%Y-%m-%d')
-                month_key = f"{date.year}-{date.month}"
-                monthly_data[month_key].append(exp)
-
-            # Linear regression for each category
-            category_totals = defaultdict(list)
-            for month, exps in monthly_data.items():
-                month_cats = defaultdict(float)
-                for exp in exps:
-                    month_cats[exp.category] += exp.amount
-                for cat in self.valid_categories:
-                    category_totals[cat].append(month_cats.get(cat, 0.0))
-
-            predictions = {}
-            total_predicted = 0.0
-            for cat in self.valid_categories:
-                amounts = category_totals[cat]
-                if len(amounts) >= 2:
-                    X = np.array(range(len(amounts))).reshape(-1, 1)
-                    y = np.array(amounts)
-                    model = LinearRegression()
-                    model.fit(X, y)
-                    next_month_pred = model.predict([[len(amounts)]])[0]
-                    predictions[cat] = max(0, float(next_month_pred))
-                    total_predicted += predictions[cat]
-                else:
-                    predictions[cat] = sum(amounts) / len(amounts) if amounts else 0.0
-                    total_predicted += predictions[cat]
-
-            # Generate insights using Gemini
-            expense_data_str = json.dumps([exp.model_dump(mode='json') for exp in recent_expenses], indent=2)
-            prompt = f"""
-            You are an expert financial analyst. Analyze the provided recent expense data (up to last 90 days) to predict next month's spending patterns and suggest improvements.
-            The currency for all amounts is Indian Rupees (₹).
-            Recent Expense Data:
-            {expense_data_str}
-            Predicted category breakdown (based on trend analysis):
-            {json.dumps(predictions, indent=2)}
-            Provide the following in STRICT JSON format. Do not include any other text or explanation outside the JSON.
-            {{
-              "predicted_total": float,
-              "category_breakdown": {json.dumps({cat: float(amt) for cat, amt in predictions.items()})},
-              "insights": ["string"],
-              "recommendations": ["string"]
-            }}
-            """
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()
-            if response_text.startswith("```json") and response_text.endswith("```"):
-                response_text = response_text[7:-3].strip()
-
-            try:
-                ai_data = json.loads(response_text)
-                ai_data['predicted_total'] = total_predicted
-                ai_data['category_breakdown'] = predictions
-                message = f"Based on your spending patterns, predicted next month expenses: ₹{total_predicted:.2f}"
-                return AIInsight(type="prediction", message=message, confidence=0.9, data=ai_data)
-            except json.JSONDecodeError as e:
-                logger.warning(f"AI prediction response was not valid JSON: {response_text}. Error: {e}")
-                return AIInsight(type="prediction", message="AI prediction parsing failed.", confidence=0.5, data={})
-        except Exception as e:
-            logger.error(f"AI prediction error: {e}")
-            return AIInsight(type="prediction", message="Unable to generate prediction at this time.", confidence=0.0, data={"error": str(e)})
+                self.model = None
+                return jsonify({"error": f"AI model initialization failed: {str(e)}"}), 500  # Debug output
 
     def categorize_expense(self, expense_name: str, amount: float) -> str:
+        """Suggest expense category using AI"""
         if not self.model:
-            logger.warning("AI model not available for categorization.")
-            return "Other"
+            name_lower = expense_name.lower()
+            if any(word in name_lower for word in ['coffee', 'tea', 'lunch', 'dinner', 'food', 'restaurant', 'cafe']):
+                return "Food"
+            elif any(word in name_lower for word in ['uber', 'taxi', 'bus', 'metro', 'transport', 'fuel', 'petrol']):
+                return "Transportation"
+            elif any(word in name_lower for word in ['grocery', 'supermarket', 'store', 'mart']):
+                return "Groceries"
+            elif any(word in name_lower for word in ['movie', 'game', 'entertainment', 'netflix']):
+                return "Entertainment"
+            elif any(word in name_lower for word in ['rent', 'electricity', 'water', 'gas', 'internet']):
+                return "Bills"
+            else:
+                return "Other"
+            
         try:
+            valid_categories = ["Food", "Transportation", "Bills", "Entertainment", "Housing", 
+                             "Groceries", "Health", "Education", "Personal Care", "Savings", "Travel", "Other"]
+            
             prompt = f"""
-            You are an AI assistant specialized in categorizing personal expenses. Your goal is to accurately assign the best-fitting category from a predefined list.
-            Infer the most likely category from the expense name. The currency is Indian Rupees (₹).
-            Expense Details:
-            - Item: "{expense_name}"
-            - Amount: ₹{amount:.2f}
-            Available Categories: {", ".join(self.valid_categories)}
-            Examples of Expense to Category Mapping:
-            - Expense: "Morning Coffee" -> Food
-            - Expense: "Local Bus Fare" -> Transportation
-            - Expense: "Electricity Bill" -> Bills
-            - Expense: "Movie Tickets" -> Entertainment
-            - Expense: "New T-shirt" -> Personal Care
-            Respond with ONLY the category name. If no clear match exists, respond with "Other".
+            Categorize this expense into one of these categories: {", ".join(valid_categories)}
+            
+            Expense: "{expense_name}" - ₹{amount:.2f}
+            
+            Respond with ONLY the category name. If unclear, respond with "Other".
             """
+            
             response = self.model.generate_content(prompt)
             category = response.text.strip()
-            return category if category in self.valid_categories else "Other"
+            return category if category in valid_categories else "Other"
         except Exception as e:
-            logger.error(f"AI categorization error for '{expense_name}': {e}")
+            logger.error(f"AI categorization error: {e}")
             return "Other"
 
-    def get_spending_insights(self, expenses: List[Expense]) -> List[AIInsight]:
-        if not self.model or not expenses:
-            logger.warning("AI model not available or no expenses provided for insights.")
-            return []
-        try:
-            summary_data = {
-                "total_expenses_all_time": sum(exp.amount for exp in expenses),
-                "category_spending_breakdown": {cat: sum(e.amount for e in expenses if e.category == cat) for cat in set(e.category for e in expenses)}
-            }
-            prompt = f"""
-            You are a helpful financial assistant. Analyze the following summary of expense data. The currency is Indian Rupees (₹).
-            Provide 3-5 concise, actionable insights or observations. Keep insights positive and actionable.
-            Expense Summary Data:
-            {json.dumps(summary_data, indent=2)}
-            Respond as a STRICT JSON array of insight objects. Each object must have a 'message' (string) and an optional 'data' (object) field.
-            Example Format:
-            [
-              {{"message": "Your Food expenses are consistently high.", "data": {{"category": "Food"}}}},
-              {{"message": "You've saved a good amount on Transportation recently.", "data": {{"category": "Transportation"}}}}
+    def get_spending_insights(self, expense_list: List[Dict]) -> List[Dict]:
+        """Get AI-powered spending insights"""
+        if not self.model or not expense_list:
+            return [
+                {
+                    "type": "insight",
+                    "message": "Your spending patterns show consistent daily expenses. Consider setting a daily budget.",
+                    "confidence": 0.7,
+                    "data": {}
+                },
+                {
+                    "type": "insight", 
+                    "message": "Food expenses are your highest category. Look for meal prep opportunities to save money.",
+                    "confidence": 0.8,
+                    "data": {"category": "Food"}
+                }
             ]
+            
+        try:
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            category_breakdown = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_breakdown[cat] = category_breakdown.get(cat, 0) + exp['amount']
+
+            summary_data = {
+                "total_expenses": total_expenses,
+                "category_breakdown": category_breakdown,
+                "expense_count": len(expense_list)
+            }
+            
+            prompt = f"""
+            Analyze spending data and provide 3-5 actionable insights in JSON format.
+            
+            Data: {json.dumps(summary_data, indent=2)}
+            
+            Return as JSON array: [{{"message": "insight text", "data": {{"category": "relevant_category"}}}}]
+            Keep insights positive and actionable. Use ₹ for currency.
             """
+            
             response = self.model.generate_content(prompt)
             response_text = response.text.strip()
+            
             if response_text.startswith("```json") and response_text.endswith("```"):
                 response_text = response_text[7:-3].strip()
 
-            ai_insights = []
             try:
                 ai_raw_insights = json.loads(response_text)
+                insights = []
                 if isinstance(ai_raw_insights, list):
                     for item in ai_raw_insights:
                         if isinstance(item, dict) and "message" in item:
-                            clean_message = item["message"].replace("$", "₹")
-                            ai_insights.append(AIInsight(type="insight", message=clean_message, confidence=0.8, data=item.get("data", {})))
-                return ai_insights
-            except json.JSONDecodeError as e:
-                logger.warning(f"AI insights response was not valid JSON: {response_text}. Error: {e}")
-                return [AIInsight(type="insight", message="Failed to process detailed AI insights.", confidence=0.3, data={"error": str(e)})]
+                            insights.append({
+                                "type": "insight",
+                                "message": item["message"],
+                                "confidence": 0.85,
+                                "data": item.get("data", {})
+                            })
+                return insights if insights else self.get_spending_insights([])  # Fallback
+            except json.JSONDecodeError:
+                return self.get_spending_insights([])  # Fallback
         except Exception as e:
-            logger.error(f"AI insights generation error: {e}")
-            return [AIInsight(type="insight", message="Unable to generate AI insights due to an unexpected error.", confidence=0.0, data={"error": str(e)})]
+            logger.error(f"AI insights error: {e}")
+            return self.get_spending_insights([])  # Fallback
 
-    def comprehensive_analysis(self, expenses: List[Expense], budgets: List[Budget]) -> ComprehensiveAnalysisResponse:
+    def calculate_financial_health_score(self, expense_list: List[Dict], income_list: List[Dict] = None) -> Dict:
+        """Calculate financial health score based on spending patterns"""
+        if not expense_list:
+            return {
+                "score": 75,
+                "grade": "B",
+                "message": "No spending data available. Start tracking to get personalized insights.",
+                "factors": ["No data available"],
+                "recommendations": ["Begin tracking your expenses", "Set up a budget", "Monitor your spending patterns"]
+            }
+        
         try:
-            if not expenses and not budgets:
-                return ComprehensiveAnalysisResponse(success=False, data={}, error="No expenses or budgets provided.")
-
-            # Aggregate expense data
-            total_expenses = sum(exp.amount for exp in expenses)
-            category_breakdown = defaultdict(float)
-            for exp in expenses:
-                category_breakdown[exp.category] += exp.amount
-
-            # Analyze budget adherence
-            budget_status = {}
-            current_month_str = datetime.now().strftime('%Y-%m')
-            for budget in budgets:
-                spent = sum(exp.amount for exp in expenses if exp.category == budget.category and exp.date.startswith(current_month_str))
-                percentage = (spent / budget.amount * 100) if budget.amount > 0 else 0.0
-                budget_status[budget.category] = {
-                    "budget_amount": budget.amount,
-                    "spent_amount": spent,
-                    "percentage_used": percentage,
-                    "status": "over" if percentage > 100 else "warning" if percentage >= 80 else "good"
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            total_income = sum(inc['amount'] for inc in income_list) if income_list else total_expenses * 1.2  # Estimate
+            
+            savings_rate = max(0, (total_income - total_expenses) / total_income) if total_income > 0 else 0
+            expense_diversity = len(set(exp['category'] for exp in expense_list))
+            avg_daily_spending = total_expenses / max(len(set(exp['date'] for exp in expense_list)), 1)
+            
+            score = 0
+            if savings_rate >= 0.3:
+                score += 40
+            elif savings_rate >= 0.2:
+                score += 30
+            elif savings_rate >= 0.1:
+                score += 20
+            elif savings_rate >= 0:
+                score += 10
+            
+            if expense_diversity >= 8:
+                score += 20
+            elif expense_diversity >= 5:
+                score += 15
+            elif expense_diversity >= 3:
+                score += 10
+            else:
+                score += 5
+            
+            if avg_daily_spending <= 500:
+                score += 20
+            elif avg_daily_spending <= 1000:
+                score += 15
+            elif avg_daily_spending <= 2000:
+                score += 10
+            else:
+                score += 5
+            
+            category_totals = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+            
+            max_category_percentage = max(category_totals.values()) / total_expenses if total_expenses > 0 else 0
+            if max_category_percentage <= 0.3:
+                score += 20
+            elif max_category_percentage <= 0.5:
+                score += 15
+            elif max_category_percentage <= 0.7:
+                score += 10
+            else:
+                score += 5
+            
+            if score >= 90:
+                grade = "A+"
+                message = "Excellent financial health! You're managing your money very well."
+            elif score >= 80:
+                grade = "A"
+                message = "Great financial health! Keep up the good work."
+            elif score >= 70:
+                grade = "B+"
+                message = "Good financial health with room for improvement."
+            elif score >= 60:
+                grade = "B"
+                message = "Fair financial health. Consider the recommendations below."
+            elif score >= 50:
+                grade = "C"
+                message = "Your financial health needs attention. Focus on the areas below."
+            else:
+                grade = "D"
+                message = "Your financial health requires immediate attention."
+            
+            factors = []
+            recommendations = []
+            if savings_rate < 0.2:
+                factors.append("Low savings rate")
+                recommendations.append("Increase your savings by 20% of income")
+            if expense_diversity < 5:
+                factors.append("Limited expense categories")
+                recommendations.append("Diversify your spending across more categories")
+            if avg_daily_spending > 1000:
+                factors.append("High daily spending")
+                recommendations.append("Reduce daily expenses and look for cost-cutting opportunities")
+            if max_category_percentage > 0.5:
+                factors.append("Over-concentration in one category")
+                recommendations.append(f"Reduce spending in {max(category_totals, key=category_totals.get)} category")
+            
+            return {
+                "score": score,
+                "grade": grade,
+                "message": message,
+                "factors": factors,
+                "recommendations": recommendations,
+                "metrics": {
+                    "savings_rate": round(savings_rate * 100, 1),
+                    "expense_diversity": expense_diversity,
+                    "avg_daily_spending": round(avg_daily_spending, 2),
+                    "max_category_percentage": round(max_category_percentage * 100, 1)
                 }
+            }
+        except Exception as e:
+            logger.error(f"Financial health score calculation error: {e}")
+            return {
+                "score": 50,
+                "grade": "C",
+                "message": "Unable to calculate financial health score.",
+                "factors": ["Calculation error"],
+                "recommendations": ["Contact support if this persists"]
+            }
 
-            # Generate AI-driven financial health insights
-            if not self.model:
-                return ComprehensiveAnalysisResponse(success=False, data={}, error="AI model not available.")
+    def get_savings_advice(self, expense_list: List[Dict], income_list: List[Dict] = None) -> List[Dict]:
+        """Get AI-powered savings advice"""
+        if not expense_list:
+            return [
+                {
+                    "type": "advice",
+                    "title": "Start Tracking",
+                    "message": "Begin by tracking all your expenses to understand your spending patterns.",
+                    "priority": "high",
+                    "potential_savings": 0
+                }
+            ]
+        
+        try:
+            total_expenses = sum(exp['amount'] for exp in expense_list)
+            category_totals = {}
+            for exp in expense_list:
+                cat = exp['category']
+                category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+            
+            sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+            advice_list = []
+            
+            if 'Food' in category_totals and category_totals['Food'] > total_expenses * 0.3:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Optimize Food Spending",
+                    "message": f"You're spending ₹{category_totals['Food']:.0f} on food. Consider meal prepping, cooking at home, and using grocery lists to save 20-30%.",
+                    "priority": "high",
+                    "potential_savings": category_totals['Food'] * 0.25
+                })
+            
+            if 'Transportation' in category_totals and category_totals['Transportation'] > total_expenses * 0.2:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Reduce Transportation Costs",
+                    "message": f"Transportation costs are ₹{category_totals['Transportation']:.0f}. Consider public transport, carpooling, or walking for short distances.",
+                    "priority": "medium",
+                    "potential_savings": category_totals['Transportation'] * 0.15
+                })
+            
+            if 'Entertainment' in category_totals and category_totals['Entertainment'] > total_expenses * 0.15:
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Smart Entertainment Choices",
+                    "message": f"Entertainment spending is ₹{category_totals['Entertainment']:.0f}. Look for free events, use student discounts, and limit premium subscriptions.",
+                    "priority": "medium",
+                    "potential_savings": category_totals['Entertainment'] * 0.20
+                })
+            
+            if len(expense_list) > 20:
+                avg_expense = total_expenses / len(expense_list)
+                if avg_expense > 500:
+                    advice_list.append({
+                        "type": "advice",
+                        "title": "Review Small Expenses",
+                        "message": f"Average expense is ₹{avg_expense:.0f}. Small daily expenses add up quickly. Track every rupee spent.",
+                        "priority": "medium",
+                        "potential_savings": total_expenses * 0.10
+                    })
+            
+            if not any(exp['category'] == 'Savings' for exp in expense_list):
+                advice_list.append({
+                    "type": "advice",
+                    "title": "Build Emergency Fund",
+                    "message": "Start saving 10% of your income for emergencies. Aim for 3-6 months of expenses.",
+                    "priority": "high",
+                    "potential_savings": total_expenses * 0.10
+                })
+            
+            advice_list.sort(key=lambda x: x['potential_savings'], reverse=True)
+            return advice_list[:5]
+        except Exception as e:
+            logger.error(f"Savings advice error: {e}")
+            return [
+                {
+                    "type": "advice",
+                    "title": "General Savings Tips",
+                    "message": "Track all expenses, set budgets, and look for ways to reduce spending in your highest categories.",
+                    "priority": "medium",
+                    "potential_savings": 0
+                }
+            ]
 
-            expense_data_str = json.dumps([exp.model_dump(mode='json') for exp in expenses], indent=2)
-            budget_data_str = json.dumps([budget.model_dump(mode='json') for budget in budgets], indent=2)
+    def predict_next_month_expenses(self, expense_list: List[Dict]) -> Dict:
+        """Predict next month's expenses"""
+        if not self.model or not expense_list:
+            recent_expenses = expense_list[-30:] if len(expense_list) > 30 else expense_list
+            recent_total = sum(exp['amount'] for exp in recent_expenses)
+            predicted_total = recent_total * 1.1
+            return {
+                "type": "prediction",
+                "message": f"Based on recent spending, predicted next month: ₹{predicted_total:.2f}",
+                "confidence": 0.6,
+                "data": {"predicted_total": predicted_total}
+            }
+            
+        try:
+            current_date = datetime.now()
+            recent_expenses = []
+            for exp in expense_list:
+                try:
+                    exp_date = datetime.strptime(exp['date'], '%Y-%m-%d')
+                    if exp_date >= current_date - timedelta(days=60):
+                        recent_expenses.append(exp)
+                except ValueError:
+                    continue
+
+            if not recent_expenses:
+                return self.predict_next_month_expenses([])
+
+            total_recent = sum(exp['amount'] for exp in recent_expenses)
+            
             prompt = f"""
-            You are an expert financial analyst. Analyze the following expense and budget data to provide a comprehensive financial health analysis.
-            The currency is Indian Rupees (₹).
-            Expense Data:
-            {expense_data_str}
-            Budget Data:
-            {budget_data_str}
-            Provide a JSON response with:
-            - financial_health_score: float (0-100)
-            - summary: string
-            - recommendations: list of 3-5 strings
-            - key_metrics: object with total_expenses, top_category, budget_adherence
+            Analyze recent expense data and predict next month's total expenses.
+            
+            Recent expenses (last 60 days): ₹{total_recent:.2f}
+            Number of transactions: {len(recent_expenses)}
+            
+            Provide prediction in JSON format:
+            {{"predicted_total": float, "insights": ["insight1", "insight2"]}}
             """
+            
             response = self.model.generate_content(prompt)
             response_text = response.text.strip()
+            
             if response_text.startswith("```json") and response_text.endswith("```"):
                 response_text = response_text[7:-3].strip()
 
             try:
                 ai_data = json.loads(response_text)
-                ai_data["key_metrics"] = {
-                    "total_expenses": total_expenses,
-                    "category_breakdown": dict(category_breakdown),
-                    "budget_status": budget_status
+                predicted_total = ai_data.get('predicted_total', total_recent * 1.1)
+                return {
+                    "type": "prediction",
+                    "message": f"AI predicts next month expenses: ₹{predicted_total:.2f}",
+                    "confidence": 0.85,
+                    "data": ai_data
                 }
-                return ComprehensiveAnalysisResponse(success=True, data=ai_data, error=None)
-            except json.JSONDecodeError as e:
-                logger.warning(f"AI analysis response was not valid JSON: {response_text}. Error: {e}")
-                return ComprehensiveAnalysisResponse(success=False, data={}, error="Failed to parse AI analysis response.")
+            except json.JSONDecodeError:
+                return self.predict_next_month_expenses([])
         except Exception as e:
-            logger.error(f"Comprehensive analysis error: {e}")
-            return ComprehensiveAnalysisResponse(success=False, data={}, error=str(e))
+            logger.error(f"AI prediction error: {e}")
+            return self.predict_next_month_expenses([])
 
 # Initialize AI service
 ai_service = AIExpenseService()
 
-# API Endpoints
-@api_router.get("/")
-async def root():
-    return {"message": "Smart Expense Tracker API is running!"}
+# Load sample data
+load_sample_data()
 
-@api_router.post("/expenses/predict", response_model=AIInsight, summary="Predict next month's expenses with AI")
-async def predict_expenses_api(request: ExpenseListRequest):
-    return await run_in_threadpool(ai_service.predict_next_month_expenses, request.expenses)
+# API Routes
+@app.route('/api', methods=['GET'])
+@app.route('/api/', methods=['GET'])
+def root():
+    return jsonify({
+        "message": "Smart Expense Tracker API v2.0",
+        "status": "healthy",
+        "ai_enabled": AI_ENABLED,
+        "timestamp": datetime.now().isoformat()
+    })
 
-@api_router.get("/expenses/categorize", summary="Suggests a category for an expense using AI")
-async def categorize_expense_api(expense_name: str, amount: float):
-    category = await run_in_threadpool(ai_service.categorize_expense, expense_name=expense_name, amount=amount)
-    return {"suggested_category": category}
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    if not ai_service.model:
+        return jsonify({"error": "AI service failed to initialize"}), 500
+    return jsonify({
+        "status": "healthy",
+        "ai_service": "available" if ai_service.model else "disabled",
+        "api_key_configured": bool(GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here'),
+        "data_count": {"expenses": len(expenses), "budgets": len(budgets)},
+        "timestamp": datetime.now().isoformat(),
+        "available_models": [m.name for m in genai.list_models()] if AI_ENABLED else []
+    })
 
-@api_router.post("/expenses/insights", response_model=List[AIInsight], summary="Get AI-powered spending insights")
-async def get_spending_insights_api(request: ExpenseListRequest):
-    return await run_in_threadpool(ai_service.get_spending_insights, request.expenses)
+@app.route('/api/expenses', methods=['GET'])
+def get_expenses():
+    try:
+        return jsonify({"success": True, "data": expenses, "count": len(expenses)})
+    except Exception as e:
+        logger.error(f"Error getting expenses: {e}")
+        return jsonify({"success": False, "error": "Failed to get expenses"}), 500
 
-@api_router.post("/expenses/analytics", response_model=ExpenseAnalytics, summary="Get comprehensive expense analytics")
-async def get_expense_analytics_api(request: ExpenseListRequest):
-    expenses = request.expenses
-    if not expenses:
-        return ExpenseAnalytics(total_expenses=0.0, category_breakdown={}, monthly_trend=[])
-    total_expenses = sum(exp.amount for exp in expenses)
-    category_breakdown = {}
-    for exp in expenses:
-        category_breakdown[exp.category] = category_breakdown.get(exp.category, 0.0) + exp.amount
-    monthly_trend = []
-    today = datetime.now()
-    for i in range(6):
-        target_year, target_month = today.year, today.month - i
-        while target_month <= 0:
-            target_month += 12
-            target_year -= 1
-        month_str = datetime(target_year, target_month, 1).strftime('%Y-%m')
-        month_expenses = [exp for exp in expenses if exp.date.startswith(month_str)]
-        monthly_trend.append({"month": month_str, "total": sum(exp.amount for exp in month_expenses), "count": len(month_expenses)})
-    monthly_trend.sort(key=lambda x: x['month'])
-    return ExpenseAnalytics(total_expenses=total_expenses, category_breakdown=category_breakdown, monthly_trend=monthly_trend)
+@app.route('/api/expenses', methods=['POST'])
+def add_expense():
+    try:
+        data = request.get_json()
+        
+        required_fields = ['name', 'amount', 'date', 'category']
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        if missing_fields:
+            return jsonify({"success": False, "error": f"Missing fields: {', '.join(missing_fields)}"}), 400
 
-@api_router.post("/budget/alerts", response_model=List[BudgetAlert], summary="Get budget alerts based on spending")
-async def get_budget_alerts_api(request: BudgetAlertRequest):
-    expenses, budgets = request.expenses, request.budgets
-    alerts = []
-    current_month_str = datetime.now().strftime('%Y-%m')
-    for budget in budgets:
-        spent = sum(exp.amount for exp in expenses if exp.category == budget.category and exp.date.startswith(current_month_str))
-        percentage = (spent / budget.amount) * 100 if budget.amount > 0 else 0.0
-        if percentage >= 75:
-            alert_type = "warning" if percentage < 90 else "danger"
-            alerts.append(BudgetAlert(category=budget.category, budget_amount=budget.amount, spent_amount=spent, percentage_used=percentage, alert_type=alert_type))
-    return alerts
+        try:
+            amount = float(data['amount'])
+            if amount <= 0:
+                return jsonify({"success": False, "error": "Amount must be positive"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Invalid amount"}), 400
 
-@api_router.post("/analysis/comprehensive", response_model=ComprehensiveAnalysisResponse, summary="Get comprehensive financial analysis")
-async def get_comprehensive_analysis_api(request: ComprehensiveAnalysisRequest):
-    return await run_in_threadpool(ai_service.comprehensive_analysis, request.expenses, request.budgets)
+        try:
+            datetime.strptime(data['date'], '%Y-%m-%d')
+        except ValueError:
+            return jsonify({"success": False, "error": "Invalid date format. Use YYYY-MM-DD"}), 400
 
-@api_router.get("/health", summary="Health check endpoint")
-async def health_check():
-    return {"status": "healthy", "ai_service_status": "available" if ai_service.model else "unavailable", "timestamp": datetime.now().isoformat()}
+        expense = {
+            'id': str(uuid.uuid4()),
+            'name': data['name'].strip(),
+            'amount': amount,
+            'date': data['date'],
+            'category': data['category'],
+            'description': data.get('description', '').strip(),
+            'created_at': datetime.now().isoformat()
+        }
+        
+        expenses.insert(0, expense)
+        return jsonify({"success": True, "data": expense}), 201
+    except Exception as e:
+        logger.error(f"Error adding expense: {e}")
+        return jsonify({"success": False, "error": "Failed to add expense"}), 500
 
-# Include the router in the main app
-app.include_router(api_router)
+@app.route('/api/expenses/<expense_id>', methods=['DELETE'])
+def delete_expense(expense_id):
+    try:
+        global expenses
+        original_count = len(expenses)
+        expenses = [exp for exp in expenses if exp['id'] != expense_id]
+        
+        if len(expenses) == original_count:
+            return jsonify({"success": False, "error": "Expense not found"}), 404
+            
+        return jsonify({"success": True, "message": "Expense deleted successfully"})
+    except Exception as e:
+        logger.error(f"Error deleting expense: {e}")
+        return jsonify({"success": False, "error": "Failed to delete expense"}), 500
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+@app.route('/api/expenses/categorize', methods=['GET'])
+def categorize_expense():
+    try:
+        expense_name = request.args.get('expense_name', '').strip()
+        amount_str = request.args.get('amount', '0')
+        
+        if not expense_name:
+            return jsonify({"success": False, "error": "Expense name is required"}), 400
+            
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                return jsonify({"success": False, "error": "Amount must be positive"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Invalid amount"}), 400
+        
+        category = ai_service.categorize_expense(expense_name, amount)
+        return jsonify({"success": True, "suggested_category": category})
+    except Exception as e:
+        logger.error(f"Error categorizing expense: {e}")
+        return jsonify({"success": True, "suggested_category": "Other"})
+
+@app.route('/api/expenses/insights', methods=['POST'])
+def get_insights():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        insights = ai_service.get_spending_insights(expense_list)
+        return jsonify({"success": True, "data": insights})
+    except Exception as e:
+        logger.error(f"Error getting insights: {e}")
+        return jsonify({"success": True, "data": []})
+
+@app.route('/api/expenses/predict', methods=['POST'])
+def predict_expenses():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        prediction = ai_service.predict_next_month_expenses(expense_list)
+        return jsonify({"success": True, "data": prediction})
+    except Exception as e:
+        logger.error(f"Error predicting expenses: {e}")
+        return jsonify({
+            "success": True,
+            "data": {
+                "type": "prediction",
+                "message": "Unable to generate prediction",
+                "confidence": 0.0,
+                "data": {}
+            }
+        })
+
+@app.route('/api/ai/health-score', methods=['POST'])
+def get_financial_health_score():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        health_score = ai_service.calculate_financial_health_score(expense_list, income_list)
+        return jsonify({"success": True, "data": health_score})
+    except Exception as e:
+        logger.error(f"Error calculating financial health score: {e}")
+        return jsonify({
+            "success": True,
+            "data": {
+                "score": 50,
+                "grade": "C",
+                "message": "Unable to calculate financial health score.",
+                "factors": ["Calculation error"],
+                "recommendations": ["Contact support if this persists"]
+            }
+        })
+
+@app.route('/api/ai/savings-advice', methods=['POST'])
+def get_savings_advice():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        advice = ai_service.get_savings_advice(expense_list, income_list)
+        return jsonify({"success": True, "data": advice})
+    except Exception as e:
+        logger.error(f"Error getting savings advice: {e}")
+        return jsonify({
+            "success": True,
+            "data": [
+                {
+                    "type": "advice",
+                    "title": "General Savings Tips",
+                    "message": "Track all expenses, set budgets, and look for ways to reduce spending.",
+                    "priority": "medium",
+                    "potential_savings": 0
+                }
+            ]
+        })
+
+@app.route('/api/ai/comprehensive-analysis', methods=['POST'])
+def get_comprehensive_analysis():
+    try:
+        data = request.get_json() or {}
+        expense_list = data.get('expenses', expenses)
+        income_list = data.get('income', [])
+        
+        insights = ai_service.get_spending_insights(expense_list)
+        prediction = ai_service.predict_next_month_expenses(expense_list)
+        health_score = ai_service.calculate_financial_health_score(expense_list, income_list)
+        savings_advice = ai_service.get_savings_advice(expense_list, income_list)
+        
+        comprehensive_data = {
+            "insights": insights,
+            "prediction": prediction,
+            "health_score": health_score,
+            "savings_advice": savings_advice,
+            "summary": {
+                "total_expenses": sum(exp['amount'] for exp in expense_list),
+                "expense_count": len(expense_list),
+                "categories_analyzed": len(set(exp['category'] for exp in expense_list))
+            }
+        }
+        
+        return jsonify({"success": True, "data": comprehensive_data})
+    except Exception as e:
+        logger.error(f"Error getting comprehensive analysis: {e}")
+        return jsonify({
+            "success": True,
+            "data": {
+                "insights": [],
+                "prediction": {"message": "Unable to generate prediction"},
+                "health_score": {"score": 50, "grade": "C", "message": "Unable to calculate"},
+                "savings_advice": [],
+                "summary": {"total_expenses": 0, "expense_count": 0, "categories_analyzed": 0}
+            }
+        })
+
+@app.route('/api/budgets', methods=['GET'])
+def get_budgets():
+    try:
+        return jsonify({"success": True, "data": budgets, "count": len(budgets)})
+    except Exception as e:
+        logger.error(f"Error getting budgets: {e}")
+        return jsonify({"success": False, "error": "Failed to get budgets"}), 500
+
+@app.route('/api/budgets', methods=['POST'])
+def add_budget():
+    try:
+        data = request.get_json()
+        
+        required_fields = ['category', 'amount']
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        if missing_fields:
+            return jsonify({"success": False, "error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+
+        try:
+            amount = float(data['amount'])
+            if amount <= 0:
+                return jsonify({"success": False, "error": "Budget amount must be positive"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Invalid amount"}), 400
+
+        budget = {
+            'id': str(uuid.uuid4()),
+            'category': data['category'],
+            'amount': amount,
+            'period': data.get('period', 'monthly'),
+            'created_at': datetime.now().isoformat()
+        }
+        
+        budgets.append(budget)
+        return jsonify({"success": True, "data": budget}), 201
+    except Exception as e:
+        logger.error(f"Error adding budget: {e}")
+        return jsonify({"success": False, "error": "Failed to add budget"}), 500
+
+@app.route('/api/analytics', methods=['GET'])
+def get_analytics():
+    try:
+        total_expenses = sum(exp['amount'] for exp in expenses)
+        
+        category_totals = {}
+        for exp in expenses:
+            cat = exp['category']
+            category_totals[cat] = category_totals.get(cat, 0) + exp['amount']
+        
+        monthly_data = {}
+        for exp in expenses:
+            month = exp['date'][:7]
+            monthly_data[month] = monthly_data.get(month, 0) + exp['amount']
+        
+        sorted_months = sorted(monthly_data.items())[-6:]
+        
+        analytics = {
+            "total_expenses": total_expenses,
+            "expense_count": len(expenses),
+            "category_breakdown": category_totals,
+            "monthly_trend": [{"month": month, "amount": amount} for month, amount in sorted_months],
+            "average_per_day": total_expenses / max(len(set(exp['date'] for exp in expenses)), 1)
+        }
+        
+        return jsonify({"success": True, "data": analytics})
+    except Exception as e:
+        logger.error(f"Error getting analytics: {e}")
+        return jsonify({"success": False, "error": "Failed to get analytics"}), 500
+
+@app.route('/api/budget/alerts', methods=['GET'])
+def get_budget_alerts():
+    try:
+        alerts = []
+        current_month = datetime.now().strftime('%Y-%m')
+        
+        for budget in budgets:
+            spent = sum(
+                exp['amount'] for exp in expenses 
+                if exp['category'] == budget['category'] and exp['date'].startswith(current_month)
+            )
+            
+            percentage = (spent / budget['amount']) * 100 if budget['amount'] > 0 else 0
+            
+            if percentage >= 70:
+                alert_type = "warning" if percentage < 90 else "danger"
+                alerts.append({
+                    "category": budget['category'],
+                    "budget_amount": budget['amount'],
+                    "spent_amount": spent,
+                    "percentage_used": percentage,
+                    "alert_type": alert_type
+                })
+        
+        return jsonify({"success": True, "data": alerts})
+    except Exception as e:
+        logger.error(f"Error getting budget alerts: {e}")
+        return jsonify({"success": True, "data": []})
+
+if __name__ == '__main__':
+    pass  # Vercel handles runtime

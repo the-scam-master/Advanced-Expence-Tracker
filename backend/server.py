@@ -22,19 +22,21 @@ ROOT_DIR = Path(__file__).parent
 env_file = ROOT_DIR / '.env'
 if env_file.exists():
     load_dotenv(env_file)
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')  # Default to placeholder if not set
-AI_ENABLED = False
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your_google_api_key_here')
 
-if GOOGLE_API_KEY and GOOGLE_API_KEY != 'your_google_api_key_here':
-    try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        AI_ENABLED = True
-        logger.info("Google Generative AI configured successfully.")
-    except Exception as e:
-        logger.error(f"Failed to configure Google Generative AI: {e}")
-        AI_ENABLED = False
-else:
-    logger.warning("GOOGLE_API_KEY not found or invalid. AI features will be disabled.")
+# Enforce valid API key
+if not GOOGLE_API_KEY or GOOGLE_API_KEY == 'your_google_api_key_here':
+    raise RuntimeError("GOOGLE_API_KEY not found or invalid in environment.")
+
+# Configure Google Gemini AI
+AI_ENABLED = False
+try:
+    genai.configure(api_key=GOOGLE_API_KEY)
+    AI_ENABLED = True
+    logger.info("Google Generative AI configured successfully.")
+except Exception as e:
+    logger.error(f"Failed to configure Google Generative AI: {e}")
+    raise  # Re-raise to fail fast
 
 # Create Flask app
 app = Flask(__name__)
@@ -110,12 +112,13 @@ class AIExpenseService:
                 available_models = [m.name for m in genai.list_models()]
                 logger.info(f"Available models: {available_models}")
                 self.model = genai.GenerativeModel('gemma-3-27b-it')
-                if self.model:
-                    logger.info(f"AI model initialized: {self.model.name}")
-                else:
-                    logger.warning("No compatible AI model found.")
+                if 'gemma-3-27b-it' not in available_models:
+                    raise ValueError("gemma-3-27b-it not available with this API key.")
+                logger.info(f"AI model initialized: {self.model.name}")
             except Exception as e:
                 logger.error(f"Failed to initialize AI model: {e}")
+                self.model = None
+                return jsonify({"error": f"AI model initialization failed: {str(e)}"}), 500  # Debug output
 
     def categorize_expense(self, expense_name: str, amount: float) -> str:
         """Suggest expense category using AI"""
@@ -500,6 +503,8 @@ def root():
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
+    if not ai_service.model:
+        return jsonify({"error": "AI service failed to initialize"}), 500
     return jsonify({
         "status": "healthy",
         "ai_service": "available" if ai_service.model else "disabled",

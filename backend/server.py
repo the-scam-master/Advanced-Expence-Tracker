@@ -10,7 +10,7 @@ from pathlib import Path
 import json
 from datetime import datetime, timedelta
 import uuid
-from transformers import pipeline  # Hugging Face transformers for gemma-3-27b-it
+import google.generativeai as genai
 
 # Initialize logging
 logging.basicConfig(
@@ -22,16 +22,18 @@ logger = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Initialize Hugging Face pipeline for gemma-3-27b-it
-HUGGINGFACE_TOKEN = os.getenv('HUGGINGFACE_TOKEN')
-if not HUGGINGFACE_TOKEN:
-    logger.error("HUGGINGFACE_TOKEN is not set in the environment variables.")
-try:
-    generator = pipeline('text-generation', model='google/gemma-3-27b-it', token=HUGGINGFACE_TOKEN, device=0)  # Assumes GPU
-    logger.info("Gemma-3-27b-it model initialized successfully.")
-except Exception as e:
-    logger.error(f"Failed to initialize Gemma-3-27b-it: {e}")
-    generator = None
+# Initialize Google Generative AI
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    logger.error("GOOGLE_API_KEY is not set in the environment variables.")
+else:
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+        model = genai.GenerativeModel('gemma-3-27b-it')
+        logger.info("Gemini 1.5 Flash model initialized successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize Gemini model: {e}")
+        model = None
 
 # Create the main app
 app = FastAPI(title="Smart Expense Tracker API", version="1.0.0",
@@ -48,7 +50,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Data Models (same as previous server.py)
+# Data Models
 class Expense(BaseModel):
     id: str
     name: str
@@ -101,10 +103,10 @@ class ComprehensiveAnalysisResponse(BaseModel):
 expenses_db = []
 budgets_db = []
 
-# AI Service Class for gemma-3-27b-it
+# AI Service Class
 class AIExpenseService:
     def __init__(self):
-        self.model = generator
+        self.model = model if 'model' in globals() else None
 
     def predict_next_month_expenses(self, expenses: List[Expense]) -> AIInsight:
         if not self.model:
@@ -120,21 +122,21 @@ class AIExpenseService:
 
             expense_data_str = json.dumps([exp.dict() for exp in recent_expenses], indent=2)
             prompt = f"""
-            Analyze the following expense data (last 90 days, in Indian Rupees ₹) to predict next month's spending patterns.
-            Expense Data:
-            {expense_data_str}
-            Provide a JSON response with:
-            - predicted_total: float
-            - category_breakdown: object with categories (food, transportation, bills, entertainment, shopping, health, other)
-            - insights: list of strings
-            - recommendations: list of strings
-            """
-            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
-            response_text = response[len(prompt):].strip()
+Analyze the following expense data (last 90 days, in Indian Rupees ₹) to predict next month's spending patterns.
+Expense Data:
+{expense_data_str}
+Provide a JSON response with:
+- predicted_total: float
+- category_breakdown: object with categories (food, transportation, bills, entertainment, shopping, health, other)
+- insights: list of strings (3-5 specific observations about spending patterns)
+- recommendations: list of strings (3-5 actionable suggestions to optimize spending)
+"""
+            response = self.model.generate_content(prompt)
+            response_text = response.text.strip()
             if response_text.startswith('```json') and response_text.endswith('```'):
                 response_text = response_text[7:-3].strip()
             ai_data = json.loads(response_text)
-            predicted_total = ai_data.get('predicted_total', 0.0)
+            predicted_total = float(ai_data.get('predicted_total', 0.0))
             message = f"Predicted next month expenses: ₹{predicted_total:.2f}"
             return AIInsight(type="prediction", message=message, confidence=0.9, data=ai_data)
         except Exception as e:
@@ -147,12 +149,12 @@ class AIExpenseService:
         try:
             valid_categories = ["food", "transportation", "bills", "entertainment", "shopping", "health", "other"]
             prompt = f"""
-            Categorize the expense: "{expense_name}" (₹{amount:.2f}).
-            Available Categories: {", ".join(valid_categories)}
-            Respond with one word: the category name (lowercase).
-            """
-            response = self.model(prompt, max_length=50, num_return_sequences=1)[0]['generated_text']
-            category = response[len(prompt):].strip().lower()
+Categorize the expense: "{expense_name}" (₹{amount:.2f}).
+Available Categories: {", ".join(valid_categories)}
+Respond with one word: the category name (lowercase).
+"""
+            response = self.model.generate_content(prompt)
+            category = response.text.strip().lower()
             return category if category in valid_categories else "other"
         except Exception as e:
             logger.error(f"AI categorization error: {e}")
@@ -167,19 +169,22 @@ class AIExpenseService:
                 "category_spending": {
                     cat: sum(e.amount for e in expenses if e.category == cat)
                     for cat in set(e.category for e in expenses)
-                }
+                },
+                "transaction_count": len(expenses),
+                "average_transaction": sum(exp.amount for exp in expenses) / len(expenses) if expenses else 0
             }
             prompt = f"""
-            Analyze the expense data (in Indian Rupees ₹):
-            {json.dumps(summary_data, indent=2)}
-            Provide 3-5 actionable insights in JSON format:
-            [
-              {{"message": "string", "data": {{"category": "string"}}}},
-              ...
-            ]
-            """
-            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
-            response_text = response[len(prompt):].strip()
+Analyze the expense data (in Indian Rupees ₹):
+{json.dumps(summary_data, indent=2)}
+Provide 3-5 actionable insights in JSON format:
+[
+  {{"message": "string", "data": {{"category": "string", "amount": float, "percentage": float}}}},
+  ...
+]
+Each insight should highlight specific spending patterns or anomalies and include relevant data points.
+"""
+            response = self.model.generate_content(prompt)
+            response_text = response.text.strip()
             if response_text.startswith('```json') and response_text.endswith('```'):
                 response_text = response_text[7:-3].strip()
             ai_insights = []
@@ -188,7 +193,7 @@ class AIExpenseService:
                     ai_insights.append(AIInsight(
                         type="insight",
                         message=item["message"].replace("$", "₹"),
-                        confidence=0.8,
+                        confidence=0.85,
                         data=item.get("data", {})
                     ))
             return ai_insights
@@ -208,19 +213,19 @@ class AIExpenseService:
                 for cat in set(e.category for e in expenses)
             }
             prompt = f"""
-            Analyze financial data (in Indian Rupees ₹):
-            - Total Income: ₹{total_income:.2f}
-            - Total Expenses: ₹{total_expenses:.2f}
-            - Savings Rate: {savings_rate:.2f}%
-            - Category Spending: {json.dumps(category_spending, indent=2)}
-            Provide a JSON response with:
-            - score: float (0-100)
-            - grade: string (A, B, C, D, F)
-            - message: string
-            - factors: list of strings
-            """
-            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
-            response_text = response[len(prompt):].strip()
+Analyze financial data (in Indian Rupees ₹):
+- Total Income: ₹{total_income:.2f}
+- Total Expenses: ₹{total_expenses:.2f}
+- Savings Rate: {savings_rate:.2f}%
+- Category Spending: {json.dumps(category_spending, indent=2)}
+Provide a JSON response with:
+- score: float (0-100)
+- grade: string (A, B, C, D, F)
+- message: string (summary of financial health)
+- factors: list of strings (3-5 specific factors affecting the score)
+"""
+            response = self.model.generate_content(prompt)
+            response_text = response.text.strip()
             if response_text.startswith('```json') and response_text.endswith('```'):
                 response_text = response_text[7:-3].strip()
             return json.loads(response_text)
@@ -239,18 +244,19 @@ class AIExpenseService:
                 for cat in set(e.category for e in expenses)
             }
             prompt = f"""
-            Analyze financial data (in Indian Rupees ₹):
-            - Total Income: ₹{total_income:.2f}
-            - Total Expenses: ₹{total_expenses:.2f}
-            - Category Spending: {json.dumps(category_spending, indent=2)}
-            Provide 3-5 savings advice in JSON format:
-            [
-              {{"title": "string", "message": "string", "priority": "string", "potential_savings": float}},
-              ...
-            ]
-            """
-            response = self.model(prompt, max_length=2000, num_return_sequences=1)[0]['generated_text']
-            response_text = response[len(prompt):].strip()
+Analyze financial data (in Indian Rupees ₹):
+- Total Income: ₹{total_income:.2f}
+- Total Expenses: ₹{total_expenses:.2f}
+- Category Spending: {json.dumps(category_spending, indent=2)}
+Provide 3-5 savings advice in JSON format:
+[
+  {{"title": "string", "message": "string", "priority": "string (high|medium|low)", "potential_savings": float}},
+  ...
+]
+Each advice should be specific, actionable, and include estimated potential savings.
+"""
+            response = self.model.generate_content(prompt)
+            response_text = response.text.strip()
             if response_text.startswith('```json') and response_text.endswith('```'):
                 response_text = response_text[7:-3].strip()
             return json.loads(response_text)
@@ -261,7 +267,7 @@ class AIExpenseService:
 # Initialize AI service
 ai_service = AIExpenseService()
 
-# API Endpoints (same as previous server.py)
+# API Endpoints
 @api_router.get("/")
 async def root():
     return {"message": "Smart Expense Tracker API is running!"}
@@ -354,7 +360,7 @@ async def get_budget_alerts_api(request: BudgetAlertRequest):
             ))
     return alerts
 
-@api_router.get("/bUDgets", response_model=List[Budget], summary="Get all budgets")
+@api_router.get("/budgets", response_model=List[Budget], summary="Get all budgets")
 async def get_budgets():
     return budgets_db
 

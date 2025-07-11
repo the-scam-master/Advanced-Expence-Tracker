@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Expense Tracker</title>
-    <meta name="description" content="AI-powered expense tracking with smart insights">
+    <meta name="description" content="Expense tracking with smart budgeting and visualizations">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="chart.min.js"></script>
     <style>
     * {
         margin: 0;
@@ -584,10 +584,9 @@
         margin-bottom: 25px;
         display: flex;
         flex-direction: column;
-        align-items: center; /* Already present, ensuring it works */
+        align-items: center;
         width: 100%;
     }
-
     .calendar-header {
         display: flex;
         justify-content: space-between;
@@ -606,9 +605,9 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 5px;
-        width: 100%; /* Ensure it takes full container width */
-        max-width: 100%; /* Remove or adjust fixed max-width */
-        margin: 0 auto; /* Center the grid */
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
     }
     .calendar-day {
         text-align: center;
@@ -647,13 +646,13 @@
         border: 2px solid var(--accent-blue);
     }
     .calendar-expenses {
-      font-size: 10px;
-      margin-top: 3px;
-      line-height: 1.2;
-      font-weight: 600;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
+        font-size: 8px;
+        margin-top: 3px;
+        line-height: 1.2;
+        font-weight: 600;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .calendar-expenses.income {
         color: var(--accent-green);
@@ -679,19 +678,19 @@
             bottom: 15px;
         }
         .calendar-container {
-                padding: 15px;
-            }
-            .calendar-grid {
-                gap: 3px; /* Reduce gap on small screens */
-            }
-            .calendar-date {
-                padding: 6px;
-                min-height: 40px;
-                font-size: 11px; /* Slightly smaller text for better fit */
-            }
-            .calendar-expenses {
-                font-size: 8px; /* Adjust expense text size */
-            }
+            padding: 15px;
+        }
+        .calendar-grid {
+            gap: 3px;
+        }
+        .calendar-date {
+            padding: 6px;
+            min-height: 40px;
+            font-size: 11px;
+        }
+        .calendar-expenses {
+            font-size: 8px;
+        }
     }
     </style>
 </head>
@@ -700,7 +699,6 @@
         <main class="main-content">
             <!-- Home Tab -->
             <div id="tab-home" class="tab-page active">
-                <!-- Greeting Section -->
                 <div class="greeting-section">
                     <div class="greeting-header">
                         <div class="greeting-text">
@@ -710,12 +708,11 @@
                                 <div class="greeting-subtitle">Here's your spending</div>
                             </div>
                         </div>
-                        <button class="settings-btn" onclick="openModal('settings-modal')">
+                        <button class="settings-btn" onclick="openModal('settings-modal')" aria-label="Open settings">
                             <i class="fas fa-cog"></i>
                         </button>
                     </div>
                 </div>
-                <!-- Balance Card -->
                 <div class="balance-card">
                     <div class="balance-header">
                         <i class="fas fa-wallet balance-icon"></i>
@@ -724,22 +721,20 @@
                     <div class="balance-amount" id="balance-amount">₹0.00</div>
                     <div class="balance-subtitle">**** 1910</div>
                 </div>
-                <!-- Quick Actions -->
                 <div class="quick-actions">
-                    <button class="action-btn" onclick="openModal('income-modal')">
+                    <button class="action-btn" onclick="openModal('income-modal')" aria-label="Add income">
                         <i class="fas fa-plus"></i>
                         <span>Add Income</span>
                     </button>
-                    <button class="action-btn primary" onclick="openModal('expense-modal')">
+                    <button class="action-btn primary" onclick="openModal('expense-modal')" aria-label="Add expense">
                         <i class="fas fa-minus"></i>
                         <span>Add Expense</span>
                     </button>
-                    <button class="action-btn" onclick="switchTab('history')">
+                    <button class="action-btn" onclick="switchTab('history')" aria-label="View history">
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transfer</span>
                     </button>
                 </div>
-                <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon income">
@@ -756,7 +751,6 @@
                         <div class="stat-label">Expenses</div>
                     </div>
                 </div>
-                <!-- Recent Transactions -->
                 <div class="section-header">
                     <h3 class="section-title">
                         <i class="fas fa-history"></i>
@@ -766,7 +760,6 @@
                 <div class="expense-list" id="recent-expenses">
                     <!-- Transactions will be populated by JS -->
                 </div>
-                <!-- Expense Visualization -->
                 <div class="chart-container">
                     <canvas id="expense-chart"></canvas>
                 </div>
@@ -783,7 +776,7 @@
                     <div id="budget-list">
                         <!-- Budgets will be populated by JS -->
                     </div>
-                    <button class="btn btn-primary" onclick="openModal('budget-modal')">
+                    <button class="btn btn-primary" onclick="openModal('budget-modal')" aria-label="Add budget">
                         <i class="fas fa-plus"></i>
                         Add Budget
                     </button>
@@ -799,9 +792,13 @@
                 </div>
                 <div class="calendar-container">
                     <div class="calendar-header">
-                        <button class="calendar-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="calendar-nav" onclick="changeMonth(-1)" aria-label="Previous month">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
                         <span id="calendar-month-year"></span>
-                        <button class="calendar-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                        <button class="calendar-nav" onclick="changeMonth(1)" aria-label="Next month">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                     <div class="calendar-grid" id="calendar-days">
                         <!-- Calendar days will be populated by JS -->
@@ -818,28 +815,27 @@
                 </div>
             </div>
         </main>
-        <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <button class="nav-btn active" onclick="switchTab('home')">
+            <button class="nav-btn active" onclick="switchTab('home')" aria-label="Home tab">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </button>
-            <button class="nav-btn" onclick="switchTab('budget')">
+            <button class="nav-btn" onclick="switchTab('budget')" aria-label="Budget tab">
                 <i class="fas fa-chart-pie"></i>
                 <span>Budget</span>
             </button>
-            <button class="nav-btn" onclick="switchTab('history')">
+            <button class="nav-btn" onclick="switchTab('history')" aria-label="History tab">
                 <i class="fas fa-history"></i>
                 <span>History</span>
             </button>
         </nav>
     </div>
     <!-- Add Expense Modal -->
-    <div id="expense-modal" class="modal">
+    <div id="expense-modal" class="modal" role="dialog" aria-labelledby="expense-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add Expense</h2>
-                <button class="close-btn" onclick="closeModal('expense-modal')">
+                <h2 class="modal-title" id="expense-modal-title">Add Expense</h2>
+                <button class="close-btn" onclick="closeModal('expense-modal')" aria-label="Close expense modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -851,7 +847,7 @@
                     </div>
                     <div class="form-group">
                         <label for="expense-amount">Amount (₹)</label>
-                        <input type="number" id="expense-amount" placeholder="0.00" step="0.01" required>
+                        <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
                         <label for="expense-category">Category</label>
@@ -863,6 +859,9 @@
                             <option value="bills">Bills & Utilities</option>
                             <option value="shopping">Shopping</option>
                             <option value="health">Health & Fitness</option>
+                            <option value="education">Education</option>
+                            <option value="travel">Travel</option>
+                            <option value="housing">Housing</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -875,8 +874,8 @@
                         <textarea id="expense-description" rows="3" placeholder="Add a note..."></textarea>
                     </div>
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('expense-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('expense-modal')" aria-label="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" aria-label="Add expense">
                             <i class="fas fa-plus"></i>
                             Add Expense
                         </button>
@@ -886,11 +885,11 @@
         </div>
     </div>
     <!-- Add Income Modal -->
-    <div id="income-modal" class="modal">
+    <div id="income-modal" class="modal" role="dialog" aria-labelledby="income-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add Income</h2>
-                <button class="close-btn" onclick="closeModal('income-modal')">
+                <h2 class="modal-title" id="income-modal-title">Add Income</h2>
+                <button class="close-btn" onclick="closeModal('income-modal')" aria-label="Close income modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -902,7 +901,7 @@
                     </div>
                     <div class="form-group">
                         <label for="income-amount">Amount (₹)</label>
-                        <input type="number" id="income-amount" placeholder="0.00" step="0.01" required>
+                        <input type="number" id="income-amount" placeholder="0.00" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
                         <label for="income-category">Category</label>
@@ -912,6 +911,8 @@
                             <option value="freelance">Freelance</option>
                             <option value="investment">Investment</option>
                             <option value="gift">Gift</option>
+                            <option value="business">Business</option>
+                            <option value="rental">Rental Income</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -920,8 +921,8 @@
                         <input type="date" id="income-date" required>
                     </div>
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('income-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('income-modal')" aria-label="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" aria-label="Add income">
                             <i class="fas fa-plus"></i>
                             Add Income
                         </button>
@@ -931,11 +932,11 @@
         </div>
     </div>
     <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
+    <div id="settings-modal" class="modal" role="dialog" aria-labelledby="settings-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Settings</h2>
-                <button class="close-btn" onclick="closeModal('settings-modal')">
+                <h2 class="modal-title" id="settings-modal-title">Settings</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')" aria-label="Close settings modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -943,28 +944,28 @@
                 <div class="form-group">
                     <label for="user-name">Your Name</label>
                     <input type="text" id="user-name" placeholder="Enter your name">
-                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveUserName()">Save Name</button>
+                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveUserName()" aria-label="Save name">Save Name</button>
                 </div>
                 <div class="form-group">
                     <label>Data Management</label>
                     <div class="form-buttons">
-                        <button class="btn btn-primary" onclick="exportData()">Export Data</button>
+                        <button class="btn btn-primary" onclick="exportData()" aria-label="Export data">Export Data</button>
                         <input type="file" id="import-data" accept=".json" style="display: none;" onchange="importData(event)">
-                        <button class="btn btn-secondary" onclick="document.getElementById('import-data').click()">Import Data</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('import-data').click()" aria-label="Import data">Import Data</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-danger" onclick="resetData()">Reset All Data</button>
+                    <button class="btn btn-danger" onclick="resetData()" aria-label="Reset all data">Reset All Data</button>
                 </div>
             </div>
         </div>
     </div>
     <!-- Add Budget Modal -->
-    <div id="budget-modal" class="modal">
+    <div id="budget-modal" class="modal" role="dialog" aria-labelledby="budget-modal-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add Budget</h2>
-                <button class="close-btn" onclick="closeModal('budget-modal')">
+                <h2 class="modal-title" id="budget-modal-title">Add Budget</h2>
+                <button class="close-btn" onclick="closeModal('budget-modal')" aria-label="Close budget modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -980,16 +981,19 @@
                             <option value="bills">Bills & Utilities</option>
                             <option value="shopping">Shopping</option>
                             <option value="health">Health & Fitness</option>
+                            <option value="education">Education</option>
+                            <option value="travel">Travel</option>
+                            <option value="housing">Housing</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="budget-amount">Budget Amount (₹)</label>
-                        <input type="number" id="budget-amount" placeholder="0.00" step="0.01" required>
+                        <input type="number" id="budget-amount" placeholder="0.00" step="0.01" min="0" required>
                     </div>
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('budget-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('budget-modal')" aria-label="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" aria-label="Add budget">
                             <i class="fas fa-plus"></i>
                             Add Budget
                         </button>
@@ -999,7 +1003,6 @@
         </div>
     </div>
     <script>
-    // Initial data
     let balance = 0;
     let totalIncome = 0;
     let totalExpenses = 0;
@@ -1011,7 +1014,6 @@
     let currentYear = new Date().getFullYear();
     let selectedDate = null;
     let previousMonthData = null;
-    // Category icons mapping
     const categoryIcons = {
         food: 'fas fa-utensils',
         transportation: 'fas fa-car',
@@ -1019,13 +1021,17 @@
         bills: 'fas fa-file-invoice',
         shopping: 'fas fa-shopping-cart',
         health: 'fas fa-heartbeat',
+        education: 'fas fa-book',
+        travel: 'fas fa-plane',
+        housing: 'fas fa-home',
         other: 'fas fa-question',
         salary: 'fas fa-wallet',
         freelance: 'fas fa-laptop',
         investment: 'fas fa-chart-line',
-        gift: 'fas fa-gift'
+        gift: 'fas fa-gift',
+        business: 'fas fa-briefcase',
+        rental: 'fas fa-building'
     };
-    // Local Storage Functions
     function saveToLocalStorage() {
         const data = {
             balance,
@@ -1055,7 +1061,6 @@
             currentYear = parsed.currentYear ?? new Date().getFullYear();
         }
     }
-    // Functions
     function getIconForCategory(category) {
         return categoryIcons[category] || 'fas fa-question';
     }
@@ -1077,13 +1082,16 @@
         else greeting = 'Good evening';
         return userName ? `${greeting}, ${userName}!` : `${greeting}!`;
     }
+    function validateDate(dateStr) {
+        const inputDate = new Date(dateStr);
+        const today = getISTDate();
+        return inputDate <= today;
+    }
     function checkAndResetData() {
         const today = getISTDate();
-        const currentDay = today.getDate();
         const newMonth = today.getMonth();
         const newYear = today.getFullYear();
         if (newMonth !== currentMonth || newYear !== currentYear) {
-            // Store previous month's data
             previousMonthData = {
                 balance,
                 totalIncome,
@@ -1094,7 +1102,6 @@
                 month: currentMonth,
                 year: currentYear
             };
-            // Reset current data for new month
             balance = 0;
             totalIncome = 0;
             totalExpenses = 0;
@@ -1105,51 +1112,27 @@
             saveToLocalStorage();
             updateUI();
         }
-        // Clear June 2025 data after July 10, 2025
-        if (newMonth === 6 && newYear === 2025 && currentDay > 10 && previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025) {
-            previousMonthData = null;
-            saveToLocalStorage();
-        }
     }
     function exportData() {
         const today = getISTDate();
-        const currentDay = today.getDate();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-        // Restrict export of June 2025 data (month: 5) to before or on July 10, 2025
-        if (previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025 && currentMonth === 6 && currentYear === 2025 && currentDay <= 10) {
-            const data = previousMonthData;
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `expense_tracker_june_2025_${getISTDate().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert('June 2025 data exported successfully.');
-        } else if (currentMonth === previousMonthData?.month && currentYear === previousMonthData?.year) {
-            // Export current month's data if available
-            const data = {
-                balance,
-                totalIncome,
-                totalExpenses,
-                transactions,
-                budgets,
-                userName,
-                month: currentMonth,
-                year: currentYear
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `expense_tracker_${getISTDate().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert('Current month data exported successfully.');
-        } else {
-            alert('No data available to export for the requested period.');
-        }
+        const data = previousMonthData || {
+            balance,
+            totalIncome,
+            totalExpenses,
+            transactions,
+            budgets,
+            userName,
+            month: currentMonth,
+            year: currentYear
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `expense_tracker_${today.toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('Data exported successfully.');
     }
     function importData(event) {
         const file = event.target.files[0];
@@ -1158,20 +1141,28 @@
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
-                // No restrictions on import month/year
+                if (!data.transactions || !Array.isArray(data.transactions)) {
+                    throw new Error('Invalid transactions data');
+                }
+                if (!data.budgets || typeof data.budgets !== 'object') {
+                    throw new Error('Invalid budgets data');
+                }
+                if (typeof data.balance !== 'number' || typeof data.totalIncome !== 'number' || typeof data.totalExpenses !== 'number') {
+                    throw new Error('Invalid financial data');
+                }
                 balance = data.balance || 0;
                 totalIncome = data.totalIncome || 0;
                 totalExpenses = data.totalExpenses || 0;
                 transactions = data.transactions || [];
                 budgets = data.budgets || {};
                 userName = data.userName || '';
-                currentMonth = data.month ?? getISTDate().getMonth();
-                currentYear = data.year ?? getISTDate().getFullYear();
+                currentMonth = Number.isInteger(data.month) ? data.month : getISTDate().getMonth();
+                currentYear = Number.isInteger(data.year) ? data.year : getISTDate().getFullYear();
                 saveToLocalStorage();
                 updateUI();
                 alert('Data imported successfully.');
             } catch (err) {
-                alert('Invalid file format. Please upload a valid JSON file.');
+                alert('Invalid file format: ' + err.message);
             }
         };
         reader.readAsText(file);
@@ -1206,7 +1197,7 @@
                     </div>
                 </div>
                 <div class="expense-amount ${amountClass}">${transaction.amount < 0 ? '-' : '+'}₹${Math.abs(transaction.amount).toFixed(2)}</div>
-                ${showDeleteButton ? `<button class="delete-btn" onclick="deleteTransaction(${transaction.id})"><i class="fas fa-trash"></i></button>` : ''}
+                ${showDeleteButton ? `<button class="delete-btn" onclick="deleteTransaction(${transaction.id})" aria-label="Delete transaction"><i class="fas fa-trash"></i></button>` : ''}
             `;
             container.appendChild(expenseItem);
         });
@@ -1313,7 +1304,7 @@
                 datasets: [{
                     data: data,
                     backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF5733', '#C70039', '#900C3F'
                     ]
                 }]
             },
@@ -1332,10 +1323,9 @@
         const monthYear = document.getElementById('calendar-month-year');
         calendarDays.innerHTML = '';
         const date = new Date(currentYear, currentMonth, 1);
-        date.setTime(date.getTime() + (5.5 * 60 * 60 * 1000)); // Adjust to IST
+        date.setTime(date.getTime() + (5.5 * 60 * 60 * 1000));
         const monthName = date.toLocaleString('en-US', { month: 'long', timeZone: 'Asia/Kolkata' });
         monthYear.textContent = `${monthName} ${currentYear}`;
-        // Add weekday headers
         const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         weekdays.forEach(day => {
             const dayEl = document.createElement('div');
@@ -1343,14 +1333,12 @@
             dayEl.textContent = day;
             calendarDays.appendChild(dayEl);
         });
-        // Add empty cells for days before the first of the month
         const firstDay = date.getDay();
         for (let i = 0; i < firstDay; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'calendar-date';
             calendarDays.appendChild(emptyCell);
         }
-        // Add days of the month
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const transactionDates = transactions.reduce((acc, t) => {
             const tDate = new Date(t.date === 'Today' ? getISTDate() : t.date);
@@ -1363,17 +1351,16 @@
             const dayCell = document.createElement('div');
             dayCell.className = 'calendar-date';
             const checkDate = new Date(currentYear, currentMonth, i);
-            checkDate.setTime(checkDate.getTime() + (5.5 * 60 * 60 * 1000)); // Adjust to IST
+            checkDate.setTime(checkDate.getTime() + (5.5 * 60 * 60 * 1000));
             const dateStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
             let expenseSummary = '';
             let amountClass = '';
             if (transactionDates[dateStr]) {
                 const dayTransactions = transactionDates[dateStr];
-                const netAmount = dayTransactions
-                    .reduce((sum, t) => sum + t.amount, 0)
-                    .toFixed(0);
-                expenseSummary = `${Math.abs(netAmount)}`;
-                amountClass = netAmount >= 0 ? 'income' : 'expense';
+                const netAmount = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
+                const hasIncome = dayTransactions.some(t => t.amount > 0);
+                expenseSummary = hasIncome ? `+₹${Math.abs(netAmount).toFixed(0)}` : `-₹${Math.abs(netAmount).toFixed(0)}`;
+                amountClass = hasIncome ? 'income' : 'expense';
                 dayCell.classList.add('has-transactions');
             }
             dayCell.innerHTML = `
@@ -1385,7 +1372,7 @@
             }
             dayCell.addEventListener('click', () => {
                 selectedDate = new Date(currentYear, currentMonth, i);
-                selectedDate.setTime(selectedDate.getTime() + (5.5 * 60 * 60 * 1000)); // Adjust to IST
+                selectedDate.setTime(selectedDate.getTime() + (5.5 * 60 * 60 * 1000));
                 updateTransactionListForDate();
                 renderCalendar();
             });
@@ -1474,7 +1461,6 @@
         renderExpenseChart();
         renderCalendar();
         updateGreeting();
-        // Set default date for forms
         const todayStr = getISTDate().toISOString().split('T')[0];
         document.getElementById('expense-date').value = todayStr;
         document.getElementById('income-date').value = todayStr;
@@ -1508,7 +1494,6 @@
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
     }
-    // Event listeners
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             e.target.classList.remove('active');
@@ -1516,10 +1501,14 @@
     });
     document.getElementById('expense-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        const date = document.getElementById('expense-date').value;
+        if (!validateDate(date)) {
+            alert('Future dates are not allowed.');
+            return;
+        }
         const name = document.getElementById('expense-name').value;
         const amount = parseFloat(document.getElementById('expense-amount').value);
         const category = document.getElementById('expense-category').value;
-        const date = document.getElementById('expense-date').value;
         addTransaction(name, -amount, category, date);
         this.reset();
         document.getElementById('expense-date').value = getISTDate().toISOString().split('T')[0];
@@ -1527,10 +1516,14 @@
     });
     document.getElementById('income-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        const date = document.getElementById('income-date').value;
+        if (!validateDate(date)) {
+            alert('Future dates are not allowed.');
+            return;
+        }
         const name = document.getElementById('income-name').value;
         const amount = parseFloat(document.getElementById('income-amount').value);
         const category = document.getElementById('income-category').value;
-        const date = document.getElementById('income-date').value;
         addTransaction(name, amount, category, date);
         this.reset();
         document.getElementById('income-date').value = getISTDate().toISOString().split('T')[0];
@@ -1548,7 +1541,10 @@
             alert('Please enter a valid budget amount.');
         }
     });
-    // Initial render
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded');
+        document.getElementById('expense-chart').style.display = 'none';
+    }
     loadFromLocalStorage();
     updateUI();
     </script>

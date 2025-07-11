@@ -10,1078 +10,678 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    :root {
+        --bg-primary: #0a0a0b;
+        --bg-secondary: #1a1a1b;
+        --bg-tertiary: #2a2a2b;
+        --bg-glass: rgba(26, 26, 27, 0.8);
+        --text-primary: #ffffff;
+        --text-secondary: #b3b3b3;
+        --text-muted: #8a8a8a;
+        --accent-blue: #4a9eff;
+        --accent-purple: #8b5cf6;
+        --accent-green: #10b981;
+        --accent-red: #ef4444;
+        --accent-orange: #f59e0b;
+        --border: rgba(255, 255, 255, 0.1);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+        --gradient-primary: linear-gradient(135deg, #4a9eff 0%, #8b5cf6 100%);
+        --gradient-card: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    }
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+    .app-container {
+        max-width: 400px;
+        min-height: 100vh;
+        margin: 0 auto;
+        background: var(--bg-primary);
+        position: relative;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+    }
+    .main-content {
+        padding: 20px;
+        padding-bottom: 120px;
+    }
+    .greeting-section {
+        margin-bottom: 35px;
+        padding: 20px;
+        background: var(--gradient-card);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+    }
+    .greeting-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .greeting-text {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .greeting-emoji {
+        font-size: 24px;
+    }
+    .greeting-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .greeting-subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+    .settings-btn {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .settings-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+    .balance-card {
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+    }
+    .balance-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+    }
+    .balance-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .balance-icon {
+        color: var(--accent-blue);
+        font-size: 20px;
+    }
+    .balance-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    .balance-amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+    .balance-subtitle {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+    .quick-actions {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 35px;
+    }
+    .action-btn {
+        flex: 1;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+    .action-btn:hover {
+        background: var(--bg-tertiary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+    .action-btn i {
+        font-size: 20px;
+        color: var(--accent-blue);
+    }
+    .action-btn span {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+    .action-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    .action-btn.primary i,
+    .action-btn.primary span {
+        color: white;
+    }
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-title i {
+        color: var(--accent-blue);
+    }
+    .expense-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .expense-item {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+    .expense-item:hover {
+        background: var(--bg-tertiary);
+        transform: translateY(-1px);
+    }
+    .expense-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: var(--bg-tertiary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: var(--accent-blue);
+        border: 1px solid var(--border);
+    }
+    .expense-details {
+        flex: 1;
+    }
+    .expense-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+    }
+    .expense-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        gap: 15px;
+    }
+    .expense-amount {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    .expense-amount.negative {
+        color: var(--accent-red);
+    }
+    .expense-amount.positive {
+        color: var(--accent-green);
+    }
+    .delete-btn {
+        background: var(--accent-red);
+        border: none;
+        color: white;
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    .delete-btn:hover {
+        background: #c53030;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 35px;
+    }
+    .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+    .stat-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .stat-icon.income { color: var(--accent-green); }
+    .stat-icon.expense { color: var(--accent-red); }
+    .stat-icon.savings { color: var(--accent-blue); }
+    .stat-icon.budget { color: var(--accent-purple); }
+    .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+    }
+    .stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    .bottom-nav {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 380px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 25px;
+        padding: 12px;
+        display: flex;
+        justify-content: space-around;
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow);
+    }
+    .nav-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        min-width: 60px;
+    }
+    .nav-btn.active {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    .nav-btn i {
+        font-size: 18px;
+    }
+    .nav-btn span {
+        font-size: 10px;
+        font-weight: 500;
+    }
+    .tab-page {
+        display: none;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .tab-page.active {
+        display: block;
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .tab-page.fade-out {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-content {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 90%;
+        max-width: 400px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-hover);
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+    .close-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+    .modal-body {
+        padding: 20px;
+    }
+    .form-group {
+        margin-bottom: 24px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: var(--text-muted);
+    }
+    .form-group input[type="date"] {
+        color: var(--text-primary);
+    }
+    .form-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+    .btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+    }
+    .btn-danger {
+        background: var(--accent-red);
+        color: white;
+    }
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    .empty-text {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .empty-subtext {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+    .budget-section {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .budget-progress {
+        margin-bottom: 16px;
+    }
+    .budget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .budget-info h4 {
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .budget-info p {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+    .budget-amount {
+        text-align: right;
+    }
+    .budget-spent {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    .budget-total {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--bg-tertiary);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+    .progress-fill {
+        height: 100%;
+        background: var(--gradient-primary);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    .progress-fill.warning {
+        background: linear-gradient(90deg, var(--accent-orange), #ff8c42);
+    }
+    .progress-fill.danger {
+        background: linear-gradient(90deg, #ff4757, #ff6b7a);
+    }
+    .chart-container {
+        margin-top: 20px;
+        padding: 20px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        margin-bottom: 25px;
+    }
+    .calendar-container {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: fit-content; /* Ensures the container only takes the width it needs */
+    }
 
-        :root {
-            --bg-primary: #0a0a0b;
-            --bg-secondary: #1a1a1b;
-            --bg-tertiary: #2a2a2b;
-            --bg-glass: rgba(26, 26, 27, 0.8);
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --text-muted: #8a8a8a;
-            --accent-blue: #4a9eff;
-            --accent-purple: #8b5cf6;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-orange: #f59e0b;
-            --border: rgba(255, 255, 255, 0.1);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
-            --gradient-primary: linear-gradient(135deg, #4a9eff 0%, #8b5cf6 100%);
-            --gradient-card: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .calendar-nav {
+        background: var(--bg-tertiary);
+        border: none;
+        color: var(--text-primary);
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+    .calendar-day {
+        text-align: center;
+        padding: 10px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    .calendar-date {
+        text-align: center;
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .calendar-date:hover {
+        background: var(--bg-tertiary);
+    }
+    .calendar-date.active {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    .calendar-date.active .calendar-expenses {
+        color: white;
+    }
+    .calendar-date.has-transactions {
+        border: 2px solid var(--accent-blue);
+    }
+    .calendar-expenses {
+      font-size: 10px;
+      margin-top: 3px;
+      line-height: 1.2;
+      font-weight: 600;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calendar-expenses.income {
+        color: var(--accent-green);
+    }
+    .calendar-expenses.expense {
+        color: var(--accent-red);
+    }
+    @media (max-width: 480px) {
         .app-container {
-            max-width: 400px;
-            min-height: 100vh;
-            margin: 0 auto;
-            background: var(--bg-primary);
-            position: relative;
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
+            max-width: 100%;
+            border-left: none;
+            border-right: none;
         }
-
         .main-content {
-            padding: 20px;
-            padding-bottom: 120px;
+            padding: 15px;
+            padding-bottom: 100px;
         }
-
-        .greeting-section {
-            margin-bottom: 35px;
-            padding: 20px;
-            background: var(--gradient-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-        }
-
-        .greeting-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .greeting-text {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .greeting-emoji {
-            font-size: 24px;
-        }
-
-        .greeting-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .greeting-subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .settings-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .settings-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .balance-card {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-primary);
-        }
-
-        .balance-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .balance-icon {
-            color: var(--accent-blue);
-            font-size: 20px;
-        }
-
-        .balance-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
         .balance-amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 10px;
+            font-size: 28px;
         }
-
-        .balance-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 35px;
-        }
-
-        .action-btn {
-            flex: 1;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .action-btn:hover {
-            background: var(--bg-tertiary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .action-btn i {
-            font-size: 20px;
-            color: var(--accent-blue);
-        }
-
-        .action-btn span {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .action-btn.primary {
-            background: var(--gradient-primary);
-            color: white;
-        }
-
-        .action-btn.primary i,
-        .action-btn.primary span {
-            color: white;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title i {
-            color: var(--accent-blue);
-        }
-
-        .expense-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .expense-item {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .expense-item:hover {
-            background: var(--bg-tertiary);
-            transform: translateY(-1px);
-        }
-
-        .expense-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            background: var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: var(--accent-blue);
-            border: 1px solid var(--border);
-        }
-
-        .expense-details {
-            flex: 1;
-        }
-
-        .expense-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 5px;
-        }
-
-        .expense-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            gap: 15px;
-        }
-
-        .expense-amount {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .expense-amount.negative {
-            color: var(--accent-red);
-        }
-
-        .expense-amount.positive {
-            color: var(--accent-green);
-        }
-
-        .delete-btn {
-            background: var(--accent-red);
-            border: none;
-            color: white;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .delete-btn:hover {
-            background: #c53030;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 35px;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .stat-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .stat-icon.income { color: var(--accent-green); }
-        .stat-icon.expense { color: var(--accent-red); }
-        .stat-icon.savings { color: var(--accent-blue); }
-        .stat-icon.budget { color: var(--accent-purple); }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
         .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 380px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-around;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
+            width: 95%;
+            bottom: 15px;
         }
-
-        .nav-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            min-width: 60px;
-        }
-
-        .nav-btn.active {
-            background: var(--gradient-primary);
-            color: white;
-        }
-
-        .nav-btn i {
-            font-size: 18px;
-        }
-
-        .nav-btn span {
-            font-size: 10px;
-            font-weight: 500;
-        }
-
-        .tab-page {
-            display: none;
-        }
-
-        .tab-page.active {
-            display: block;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-hover);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
-        }
-
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-group input[type="date"] {
-            color: var(--text-primary);
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-danger {
-            background: var(--accent-red);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .empty-subtext {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .budget-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .budget-progress {
-            margin-bottom: 16px;
-        }
-
-        .budget-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .budget-info h4 {
-            color: var(--text-primary);
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .budget-info p {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .budget-amount {
-            text-align: right;
-        }
-
-        .budget-spent {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .budget-total {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient-primary);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-fill.warning {
-            background: linear-gradient(90deg, var(--accent-orange), #ff8c42);
-        }
-
-        .progress-fill.danger {
-            background: linear-gradient(90deg, #ff4757, #ff6b7a);
-        }
-
-        .chart-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .calendar-container {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .calendar-nav {
-            background: var(--bg-tertiary);
-            border: none;
-            color: var(--text-primary);
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .calendar-day {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
         .calendar-date {
-            text-align: center;
             padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
             min-height: 45px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            box-sizing: border-box;
-            overflow: hidden; /* Prevent text overflow */
         }
-
-        .calendar-date:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .calendar-date.active {
-            background: var(--gradient-primary);
-            color: white;
-        }
-
-        .calendar-date.active .calendar-expenses {
-            color: white;
-        }
-
-        .calendar-date.has-transactions {
-            border: 2px solid var(--accent-blue);
-        }
-
         .calendar-expenses {
-          font-size: 10px;
-          margin-top: 3px; /* Reduced margin to fit within height */
-          line-height: 1.2;
-          font-weight: 600;
-          max-width: 100%; /* Prevent text from exceeding cell */
-          overflow: hidden;
-          text-overflow: ellipsis;
+            font-size: 9px;
         }
-
-        .calendar-expenses.income {
-            color: var(--accent-green);
-        }
-
-        .calendar-expenses.expense {
-            color: var(--accent-red);
-        }
-
-        /* AI Components Styles */
-        .ai-loading {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .loading-spinner {
-            font-size: 32px;
-            color: var(--accent-blue);
-            margin-bottom: 15px;
-        }
-
-        .ai-section {
-            background: var(--bg-secondary);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .ai-section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .ai-section-header h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .refresh-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: var(--accent-blue);
-            color: var(--text-primary);
-        }
-
-        /* Health Score Card */
-        .health-score-card {
-            background: var(--gradient-card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .score-display {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .score-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--gradient-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .score-info h5 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .score-info p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .health-factors {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .health-factor {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* Insights Container */
-        .insights-container {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .insight-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-
-        .insight-card h5 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-bottom: 8px;
-        }
-
-        .insight-card p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .empty-insights {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-insights i {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        /* Prediction Card */
-        .prediction-card {
-            background: var(--gradient-card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .prediction-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .prediction-header i {
-            color: var(--accent-purple);
-            font-size: 18px;
-        }
-
-        .prediction-header h5 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .prediction-content {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* Savings Advice */
-        .savings-advice-container {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .advice-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-
-        .advice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .advice-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent-green);
-        }
-
-        .advice-priority {
-            background: var(--accent-orange);
-            color: var(--text-primary);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .advice-priority.high {
-            background: var(--accent-red);
-        }
-
-        .advice-priority.medium {
-            background: var(--accent-orange);
-        }
-
-        .advice-priority.low {
-            background: var(--accent-green);
-        }
-
-        .advice-message {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-            margin-bottom: 8px;
-        }
-
-        .advice-savings {
-            font-size: 12px;
-            color: var(--accent-green);
-            font-weight: 600;
-        }
-
-        .empty-advice {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-advice i {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        /* Categorization Demo */
-        .categorization-demo {
-            background: var(--bg-tertiary);
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .demo-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .demo-input input {
-            flex: 1;
-            min-width: 120px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .demo-input input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .categorization-result {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .categorization-result.success {
-            border-color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .categorization-result p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        .categorization-result .suggested-category {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--accent-green);
-            margin-top: 5px;
-        }
-
-        @media (max-width: 480px) {
-            .app-container {
-                max-width: 100%;
-                border-left: none;
-                border-right: none;
-            }
-
-            .main-content {
-                padding: 15px;
-                padding-bottom: 100px;
-            }
-
-            .balance-amount {
-                font-size: 28px;
-            }
-
-            .bottom-nav {
-                width: 95%;
-                bottom: 15px;
-            }
-
-            .calendar-date {
-                padding: 8px;
-                min-height: 45px;
-            }
-
-            .calendar-expenses {
-                font-size: 9px;
-            }
-        }
+    }
     </style>
 </head>
 <body>
@@ -1104,7 +704,6 @@
                         </button>
                     </div>
                 </div>
-
                 <!-- Balance Card -->
                 <div class="balance-card">
                     <div class="balance-header">
@@ -1114,7 +713,6 @@
                     <div class="balance-amount" id="balance-amount">₹0.00</div>
                     <div class="balance-subtitle">**** 1910</div>
                 </div>
-
                 <!-- Quick Actions -->
                 <div class="quick-actions">
                     <button class="action-btn" onclick="openModal('income-modal')">
@@ -1130,7 +728,6 @@
                         <span>Transfer</span>
                     </button>
                 </div>
-
                 <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1148,7 +745,6 @@
                         <div class="stat-label">Expenses</div>
                     </div>
                 </div>
-
                 <!-- Recent Transactions -->
                 <div class="section-header">
                     <h3 class="section-title">
@@ -1159,117 +755,11 @@
                 <div class="expense-list" id="recent-expenses">
                     <!-- Transactions will be populated by JS -->
                 </div>
-
                 <!-- Expense Visualization -->
                 <div class="chart-container">
                     <canvas id="expense-chart"></canvas>
                 </div>
             </div>
-
-            <!-- AI Tab -->
-            <div id="tab-ai" class="tab-page">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <i class="fas fa-robot"></i>
-                        AI-Powered Intelligence
-                    </h3>
-                </div>
-                
-                <!-- AI Loading State -->
-                <div id="ai-loading" class="ai-loading" style="display: none;">
-                    <div class="loading-spinner">
-                        <i class="fas fa-cog fa-spin"></i>
-                    </div>
-                    <p>Analyzing your financial data...</p>
-                </div>
-
-                <!-- AI Content -->
-                <div id="ai-content">
-                    <!-- Financial Health Score -->
-                    <div class="ai-section">
-                        <div class="ai-section-header">
-                            <h4><i class="fas fa-heartbeat"></i> Financial Health Score</h4>
-                            <button class="refresh-btn" onclick="refreshAI()">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <div id="health-score-card" class="health-score-card">
-                            <div class="score-display">
-                                <div class="score-circle">
-                                    <span id="health-score">--</span>
-                                </div>
-                                <div class="score-info">
-                                    <h5 id="health-grade">--</h5>
-                                    <p id="health-message">Click refresh to analyze</p>
-                                </div>
-                            </div>
-                            <div id="health-factors" class="health-factors"></div>
-                        </div>
-                    </div>
-
-                    <!-- Smart Insights -->
-                    <div class="ai-section">
-                        <div class="ai-section-header">
-                            <h4><i class="fas fa-lightbulb"></i> Smart Insights</h4>
-                        </div>
-                        <div id="insights-container" class="insights-container">
-                            <div class="empty-insights">
-                                <i class="fas fa-chart-line"></i>
-                                <p>No insights available yet</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Predictive Analytics -->
-                    <div class="ai-section">
-                        <div class="ai-section-header">
-                            <h4><i class="fas fa-chart-line"></i> Predictive Analytics</h4>
-                        </div>
-                        <div id="prediction-card" class="prediction-card">
-                            <div class="prediction-header">
-                                <i class="fas fa-crystal-ball"></i>
-                                <h5>Next Month Prediction</h5>
-                            </div>
-                            <div id="prediction-content" class="prediction-content">
-                                <p>Click refresh to get predictions</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Savings Advice -->
-                    <div class="ai-section">
-                        <div class="ai-section-header">
-                            <h4><i class="fas fa-piggy-bank"></i> Savings Advice</h4>
-                        </div>
-                        <div id="savings-advice-container" class="savings-advice-container">
-                            <div class="empty-advice">
-                                <i class="fas fa-coins"></i>
-                                <p>No advice available yet</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Smart Categorization -->
-                    <div class="ai-section">
-                        <div class="ai-section-header">
-                            <h4><i class="fas fa-tags"></i> Smart Categorization</h4>
-                        </div>
-                        <div class="categorization-demo">
-                            <div class="demo-input">
-                                <input type="text" id="expense-name-input" placeholder="Enter expense name (e.g., Coffee at Starbucks)">
-                                <input type="number" id="expense-amount-input" placeholder="Amount" step="0.01">
-                                <button onclick="testCategorization()" class="btn btn-primary">
-                                    <i class="fas fa-magic"></i> Categorize
-                                </button>
-                            </div>
-                            <div id="categorization-result" class="categorization-result">
-                                <p>Try entering an expense to see AI categorization</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Budget Tab -->
             <div id="tab-budget" class="tab-page">
                 <div class="section-header">
@@ -1288,7 +778,6 @@
                     </button>
                 </div>
             </div>
-
             <!-- History Tab -->
             <div id="tab-history" class="tab-page">
                 <div class="section-header">
@@ -1318,16 +807,11 @@
                 </div>
             </div>
         </main>
-
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-btn active" onclick="switchTab('home')">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
-            </button>
-            <button class="nav-btn" onclick="switchTab('ai')">
-                <i class="fas fa-robot"></i>
-                <span>AI</span>
             </button>
             <button class="nav-btn" onclick="switchTab('budget')">
                 <i class="fas fa-chart-pie"></i>
@@ -1339,7 +823,6 @@
             </button>
         </nav>
     </div>
-
     <!-- Add Expense Modal -->
     <div id="expense-modal" class="modal">
         <div class="modal-content">
@@ -1391,7 +874,6 @@
             </div>
         </div>
     </div>
-
     <!-- Add Income Modal -->
     <div id="income-modal" class="modal">
         <div class="modal-content">
@@ -1437,7 +919,6 @@
             </div>
         </div>
     </div>
-
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
@@ -1467,7 +948,6 @@
             </div>
         </div>
     </div>
-
     <!-- Add Budget Modal -->
     <div id="budget-modal" class="modal">
         <div class="modal-content">
@@ -1507,7 +987,6 @@
             </div>
         </div>
     </div>
-
     <script>
     // Initial data
     let balance = 0;
@@ -1521,7 +1000,6 @@
     let currentYear = new Date().getFullYear();
     let selectedDate = null;
     let previousMonthData = null;
-
     // Category icons mapping
     const categoryIcons = {
         food: 'fas fa-utensils',
@@ -1536,7 +1014,6 @@
         investment: 'fas fa-chart-line',
         gift: 'fas fa-gift'
     };
-
     // Local Storage Functions
     function saveToLocalStorage() {
         const data = {
@@ -1552,7 +1029,6 @@
         };
         localStorage.setItem('expenseTrackerData', JSON.stringify(data));
     }
-
     function loadFromLocalStorage() {
         const data = localStorage.getItem('expenseTrackerData');
         if (data) {
@@ -1568,16 +1044,13 @@
             currentYear = parsed.currentYear ?? new Date().getFullYear();
         }
     }
-
     // Functions
     function getIconForCategory(category) {
         return categoryIcons[category] || 'fas fa-question';
     }
-
     function getISTDate() {
         return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
     }
-
     function formatDate(date) {
         const today = getISTDate();
         if (date.toDateString() === today.toDateString()) {
@@ -1585,7 +1058,6 @@
         }
         return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-
     function getGreeting() {
         const hour = getISTDate().getHours();
         let greeting;
@@ -1594,13 +1066,11 @@
         else greeting = 'Good evening';
         return userName ? `${greeting}, ${userName}!` : `${greeting}!`;
     }
-
     function checkAndResetData() {
         const today = getISTDate();
         const currentDay = today.getDate();
         const newMonth = today.getMonth();
         const newYear = today.getFullYear();
-
         if (newMonth !== currentMonth || newYear !== currentYear) {
             // Store previous month's data
             previousMonthData = {
@@ -1624,20 +1094,17 @@
             saveToLocalStorage();
             updateUI();
         }
-
         // Clear June 2025 data after July 10, 2025
         if (newMonth === 6 && newYear === 2025 && currentDay > 10 && previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025) {
             previousMonthData = null;
             saveToLocalStorage();
         }
     }
-
     function exportData() {
         const today = getISTDate();
         const currentDay = today.getDate();
         const currentMonth = today.getMonth();
         const currentYear = today.getFullYear();
-
         // Restrict export of June 2025 data (month: 5) to before or on July 10, 2025
         if (previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025 && currentMonth === 6 && currentYear === 2025 && currentDay <= 10) {
             const data = previousMonthData;
@@ -1673,11 +1140,9 @@
             alert('No data available to export for the requested period.');
         }
     }
-
     function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
@@ -1700,7 +1165,6 @@
         };
         reader.readAsText(file);
     }
-
     function renderTransactionList(containerId, transactionsToRender, showDeleteButton = false) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -1736,7 +1200,6 @@
             container.appendChild(expenseItem);
         });
     }
-
     function deleteTransaction(id) {
         if (confirm('Are you sure you want to delete this transaction?')) {
             const transaction = transactions.find(t => t.id === id);
@@ -1753,16 +1216,13 @@
             }
         }
     }
-
     function updateBalanceUI() {
         document.getElementById('balance-amount').textContent = `₹${balance.toFixed(2)}`;
     }
-
     function updateStatsUI() {
         document.getElementById('total-income').textContent = `₹${totalIncome.toFixed(2)}`;
         document.getElementById('total-expense').textContent = `₹${totalExpenses.toFixed(2)}`;
     }
-
     function calculateCategoryExpenses(category) {
         return transactions
             .filter(t => {
@@ -1774,7 +1234,6 @@
             })
             .reduce((total, t) => total + Math.abs(t.amount), 0);
     }
-
     function renderBudgetList() {
         const budgetList = document.getElementById('budget-list');
         budgetList.innerHTML = '';
@@ -1814,13 +1273,11 @@
             budgetList.appendChild(budgetCard);
         });
     }
-
     function addBudget(category, amount) {
         budgets[category] = amount;
         saveToLocalStorage();
         renderBudgetList();
     }
-
     function renderExpenseChart() {
         const monthlyTransactions = transactions.filter(t => {
             const transactionDate = new Date(t.date === 'Today' ? getISTDate() : t.date);
@@ -1828,21 +1285,16 @@
                    transactionDate.getFullYear() === currentYear &&
                    t.amount < 0;
         });
-
         const categoryTotals = monthlyTransactions.reduce((acc, t) => {
             acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount);
             return acc;
         }, {});
-
         const labels = Object.keys(categoryTotals);
         const data = Object.values(categoryTotals);
-
         const ctx = document.getElementById('expense-chart').getContext('2d');
-
         if (expenseChart) {
             expenseChart.destroy();
         }
-
         expenseChart = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -1864,17 +1316,14 @@
             }
         });
     }
-
     function renderCalendar() {
         const calendarDays = document.getElementById('calendar-days');
         const monthYear = document.getElementById('calendar-month-year');
         calendarDays.innerHTML = '';
-
         const date = new Date(currentYear, currentMonth, 1);
         date.setTime(date.getTime() + (5.5 * 60 * 60 * 1000)); // Adjust to IST
         const monthName = date.toLocaleString('en-US', { month: 'long', timeZone: 'Asia/Kolkata' });
         monthYear.textContent = `${monthName} ${currentYear}`;
-
         // Add weekday headers
         const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         weekdays.forEach(day => {
@@ -1883,7 +1332,6 @@
             dayEl.textContent = day;
             calendarDays.appendChild(dayEl);
         });
-
         // Add empty cells for days before the first of the month
         const firstDay = date.getDay();
         for (let i = 0; i < firstDay; i++) {
@@ -1891,7 +1339,6 @@
             emptyCell.className = 'calendar-date';
             calendarDays.appendChild(emptyCell);
         }
-
         // Add days of the month
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const transactionDates = transactions.reduce((acc, t) => {
@@ -1901,7 +1348,6 @@
             acc[dateStr].push(t);
             return acc;
         }, {});
-
         for (let i = 1; i <= daysInMonth; i++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'calendar-date';
@@ -1935,7 +1381,6 @@
             calendarDays.appendChild(dayCell);
         }
     }
-
     function changeMonth(delta) {
         currentMonth += delta;
         if (currentMonth < 0) {
@@ -1950,7 +1395,6 @@
         updateTransactionListForDate();
         renderCalendar();
     }
-
     function updateTransactionListForDate() {
         let filteredTransactions = transactions;
         if (selectedDate) {
@@ -1962,7 +1406,6 @@
         }
         renderTransactionList('all-expenses', filteredTransactions, true);
     }
-
     function addTransaction(name, amount, category, date) {
         const id = transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1;
         const icon = getIconForCategory(category);
@@ -1978,7 +1421,6 @@
         saveToLocalStorage();
         updateUI();
     }
-
     function saveUserName() {
         const nameInput = document.getElementById('user-name').value.trim();
         if (nameInput) {
@@ -1990,7 +1432,6 @@
             alert('Please enter a valid name.');
         }
     }
-
     function resetData() {
         if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
             balance = 0;
@@ -2005,11 +1446,9 @@
             closeModal('settings-modal');
         }
     }
-
     function updateGreeting() {
         document.getElementById('greeting-title').textContent = getGreeting();
     }
-
     function updateUI() {
         checkAndResetData();
         updateBalanceUI();
@@ -2024,13 +1463,11 @@
         renderExpenseChart();
         renderCalendar();
         updateGreeting();
-
         // Set default date for forms
         const todayStr = getISTDate().toISOString().split('T')[0];
         document.getElementById('expense-date').value = todayStr;
         document.getElementById('income-date').value = todayStr;
     }
-
     function switchTab(tabName) {
         document.querySelectorAll('.tab-page').forEach(tab => {
             tab.classList.remove('active');
@@ -2052,27 +1489,20 @@
             renderCalendar();
         } else if (tabName === 'budget') {
             renderBudgetList();
-        } else if (tabName === 'ai') {
-            // Auto-refresh AI when switching to AI tab
-            refreshAI();
         }
     }
-
     function openModal(modalId) {
         document.getElementById(modalId).classList.add('active');
     }
-
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
     }
-
     // Event listeners
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             e.target.classList.remove('active');
         }
     });
-
     document.getElementById('expense-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const name = document.getElementById('expense-name').value;
@@ -2084,7 +1514,6 @@
         document.getElementById('expense-date').value = getISTDate().toISOString().split('T')[0];
         closeModal('expense-modal');
     });
-
     document.getElementById('income-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const name = document.getElementById('income-name').value;
@@ -2096,7 +1525,6 @@
         document.getElementById('income-date').value = getISTDate().toISOString().split('T')[0];
         closeModal('income-modal');
     });
-
     document.getElementById('budget-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const category = document.getElementById('budget-category').value;
@@ -2109,229 +1537,6 @@
             alert('Please enter a valid budget amount.');
         }
     });
-
-    // AI Functions
-    const API_BASE_URL = 'http://localhost:8001/api';
-
-    async function refreshAI() {
-        const loadingEl = document.getElementById('ai-loading');
-        const contentEl = document.getElementById('ai-content');
-        
-        loadingEl.style.display = 'block';
-        contentEl.style.display = 'none';
-        
-        try {
-            // Get comprehensive AI analysis
-            const response = await fetch(`${API_BASE_URL}/ai/comprehensive-analysis`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    expenses: transactions.filter(t => t.amount < 0).map(t => ({
-                        name: t.name,
-                        amount: Math.abs(t.amount),
-                        category: t.category,
-                        date: t.date
-                    })),
-                    income: transactions.filter(t => t.amount > 0).map(t => ({
-                        name: t.name,
-                        amount: t.amount,
-                        category: t.category,
-                        date: t.date
-                    }))
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                updateHealthScore(result.data.health_score);
-                updateInsights(result.data.insights);
-                updatePrediction(result.data.prediction);
-                updateSavingsAdvice(result.data.savings_advice);
-            } else {
-                console.error('AI analysis failed:', result.error);
-                showAIError();
-            }
-        } catch (error) {
-            console.error('AI analysis error:', error);
-            showAIError();
-        } finally {
-            loadingEl.style.display = 'none';
-            contentEl.style.display = 'block';
-        }
-    }
-
-    function updateHealthScore(healthData) {
-        const scoreEl = document.getElementById('health-score');
-        const gradeEl = document.getElementById('health-grade');
-        const messageEl = document.getElementById('health-message');
-        const factorsEl = document.getElementById('health-factors');
-        
-        scoreEl.textContent = healthData.score;
-        gradeEl.textContent = healthData.grade;
-        messageEl.textContent = healthData.message;
-        
-        // Update score circle color based on grade
-        const scoreCircle = scoreEl.parentElement;
-        scoreCircle.style.background = getScoreColor(healthData.score);
-        
-        // Update factors
-        factorsEl.innerHTML = '';
-        if (healthData.factors && healthData.factors.length > 0) {
-            healthData.factors.forEach(factor => {
-                const factorEl = document.createElement('span');
-                factorEl.className = 'health-factor';
-                factorEl.textContent = factor;
-                factorsEl.appendChild(factorEl);
-            });
-        }
-    }
-
-    function getScoreColor(score) {
-        if (score >= 90) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-        if (score >= 80) return 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
-        if (score >= 70) return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-        if (score >= 60) return 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)';
-        if (score >= 50) return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-        return 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
-    }
-
-    function updateInsights(insights) {
-        const container = document.getElementById('insights-container');
-        
-        if (!insights || insights.length === 0) {
-            container.innerHTML = `
-                <div class="empty-insights">
-                    <i class="fas fa-chart-line"></i>
-                    <p>No insights available yet</p>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = '';
-        insights.forEach(insight => {
-            const insightEl = document.createElement('div');
-            insightEl.className = 'insight-card';
-            insightEl.innerHTML = `
-                <h5><i class="fas fa-lightbulb"></i> Smart Insight</h5>
-                <p>${insight.message}</p>
-            `;
-            container.appendChild(insightEl);
-        });
-    }
-
-    function updatePrediction(prediction) {
-        const contentEl = document.getElementById('prediction-content');
-        
-        if (prediction && prediction.message) {
-            contentEl.innerHTML = `
-                <p>${prediction.message}</p>
-                ${prediction.data && prediction.data.insights ? 
-                    `<div style="margin-top: 10px;">
-                        <strong>Key Insights:</strong>
-                        <ul style="margin-top: 5px; padding-left: 20px;">
-                            ${prediction.data.insights.map(insight => `<li>${insight}</li>`).join('')}
-                        </ul>
-                    </div>` : ''
-                }
-            `;
-        } else {
-            contentEl.innerHTML = '<p>Unable to generate prediction</p>';
-        }
-    }
-
-    function updateSavingsAdvice(advice) {
-        const container = document.getElementById('savings-advice-container');
-        
-        if (!advice || advice.length === 0) {
-            container.innerHTML = `
-                <div class="empty-advice">
-                    <i class="fas fa-coins"></i>
-                    <p>No advice available yet</p>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = '';
-        advice.forEach(item => {
-            const adviceEl = document.createElement('div');
-            adviceEl.className = 'advice-card';
-            adviceEl.innerHTML = `
-                <div class="advice-header">
-                    <div class="advice-title">${item.title}</div>
-                    <span class="advice-priority ${item.priority}">${item.priority}</span>
-                </div>
-                <div class="advice-message">${item.message}</div>
-                ${item.potential_savings > 0 ? 
-                    `<div class="advice-savings">Potential savings: ₹${item.potential_savings.toFixed(0)}</div>` : ''
-                }
-            `;
-            container.appendChild(adviceEl);
-        });
-    }
-
-    async function testCategorization() {
-        const nameInput = document.getElementById('expense-name-input');
-        const amountInput = document.getElementById('expense-amount-input');
-        const resultEl = document.getElementById('categorization-result');
-        
-        const name = nameInput.value.trim();
-        const amount = parseFloat(amountInput.value);
-        
-        if (!name || isNaN(amount) || amount <= 0) {
-            resultEl.innerHTML = '<p>Please enter a valid expense name and amount</p>';
-            resultEl.className = 'categorization-result';
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/expenses/categorize?expense_name=${encodeURIComponent(name)}&amount=${amount}`, {
-                method: 'GET'
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                resultEl.innerHTML = `
-                    <p>AI suggests category:</p>
-                    <div class="suggested-category">${result.suggested_category}</div>
-                `;
-                resultEl.className = 'categorization-result success';
-            } else {
-                resultEl.innerHTML = '<p>Unable to categorize expense</p>';
-                resultEl.className = 'categorization-result';
-            }
-        } catch (error) {
-            console.error('Categorization error:', error);
-            resultEl.innerHTML = '<p>Error categorizing expense</p>';
-            resultEl.className = 'categorization-result';
-        }
-    }
-
-    function showAIError() {
-        const contentEl = document.getElementById('ai-content');
-        contentEl.innerHTML = `
-            <div class="ai-section">
-                <div class="ai-section-header">
-                    <h4><i class="fas fa-exclamation-triangle"></i> AI Service Unavailable</h4>
-                </div>
-                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-                    <i class="fas fa-robot" style="font-size: 32px; margin-bottom: 15px;"></i>
-                    <p>AI features are currently unavailable. Please try again later.</p>
-                    <button onclick="refreshAI()" class="btn btn-primary" style="margin-top: 15px;">
-                        <i class="fas fa-sync-alt"></i> Retry
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-
-
     // Initial render
     loadFromLocalStorage();
     updateUI();

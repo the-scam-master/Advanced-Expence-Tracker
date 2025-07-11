@@ -582,9 +582,10 @@
         border-radius: 15px;
         padding: 20px;
         margin-bottom: 25px;
-        margin-left: auto;
-        margin-right: auto;
-        max-width: fit-content; /* Ensures the container only takes the width it needs */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center the calendar horizontally */
+        width: 100%;
     }
 
     .calendar-header {
@@ -602,23 +603,21 @@
         cursor: pointer;
     }
     .calendar-grid {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start; /* Align items to the left */
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
         gap: 5px;
+        width: 100%;
+        max-width: 550px; /* Adjust this value as needed */
     }
-
     .calendar-day {
-        text-align: left; /* Align text to the left */
+        text-align: center;
         padding: 10px;
         font-size: 12px;
         color: var(--text-secondary);
         font-weight: 500;
-        width: 100%; /* Ensure full width for alignment */
     }
-
     .calendar-date {
-        text-align: left; /* Align text to the left */
+        text-align: center;
         padding: 8px;
         border-radius: 8px;
         cursor: pointer;
@@ -628,12 +627,11 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: flex-start; /* Align items to the left */
+        align-items: center;
         width: 100%;
         box-sizing: border-box;
         overflow: hidden;
     }
-
     .calendar-date:hover {
         background: var(--bg-tertiary);
     }

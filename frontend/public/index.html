@@ -602,19 +602,23 @@
         cursor: pointer;
     }
     .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Align items to the left */
         gap: 5px;
     }
+
     .calendar-day {
-        text-align: center;
+        text-align: left; /* Align text to the left */
         padding: 10px;
         font-size: 12px;
         color: var(--text-secondary);
         font-weight: 500;
+        width: 100%; /* Ensure full width for alignment */
     }
+
     .calendar-date {
-        text-align: center;
+        text-align: left; /* Align text to the left */
         padding: 8px;
         border-radius: 8px;
         cursor: pointer;
@@ -624,11 +628,12 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start; /* Align items to the left */
         width: 100%;
         box-sizing: border-box;
         overflow: hidden;
     }
+
     .calendar-date:hover {
         background: var(--bg-tertiary);
     }

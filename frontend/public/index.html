@@ -432,7 +432,6 @@
         color: var(--text-secondary);
     }
     .form-group input,
-    .form-group select,
     .form-group textarea {
         width: 100%;
         padding: 12px;
@@ -444,7 +443,6 @@
         transition: all 0.3s ease;
     }
     .form-group input:focus,
-    .form-group select:focus,
     .form-group textarea:focus {
         outline: none;
         border-color: var(--accent-blue);
@@ -660,6 +658,59 @@
     .calendar-expenses.expense {
         color: var(--accent-red);
     }
+    .custom-select {
+        position: relative;
+        width: 100%;
+    }
+    .custom-select-toggle {
+        width: 100%;
+        padding: 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .custom-select-toggle:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+    }
+    .custom-select-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-top: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+    }
+    .custom-select-options.active {
+        display: block;
+    }
+    .custom-select-option {
+        padding: 12px;
+        color: var(--text-primary);
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .custom-select-option:hover {
+        background: var(--bg-tertiary);
+    }
+    .custom-select-option.selected {
+        background: var(--gradient-primary);
+        color: white;
+    }
     @media (max-width: 480px) {
         .app-container {
             max-width: 100%;
@@ -851,19 +902,25 @@
                     </div>
                     <div class="form-group">
                         <label for="expense-category">Category</label>
-                        <select id="expense-category" required>
-                            <option value="">Select Category</option>
-                            <option value="food">Food & Dining</option>
-                            <option value="transportation">Transportation</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="bills">Bills & Utilities</option>
-                            <option value="shopping">Shopping</option>
-                            <option value="health">Health & Fitness</option>
-                            <option value="education">Education</option>
-                            <option value="travel">Travel</option>
-                            <option value="housing">Housing</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <div class="custom-select" id="expense-category-select">
+                            <div class="custom-select-toggle" tabindex="0" aria-label="Select expense category">
+                                <span class="custom-select-value">Select Category</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="food">Food & Dining</div>
+                                <div class="custom-select-option" data-value="transportation">Transportation</div>
+                                <div class="custom-select-option" data-value="entertainment">Entertainment</div>
+                                <div class="custom-select-option" data-value="bills">Bills & Utilities</div>
+                                <div class="custom-select-option" data-value="shopping">Shopping</div>
+                                <div class="custom-select-option" data-value="health">Health & Fitness</div>
+                                <div class="custom-select-option" data-value="education">Education</div>
+                                <div class="custom-select-option" data-value="travel">Travel</div>
+                                <div class="custom-select-option" data-value="housing">Housing</div>
+                                <div class="custom-select-option" data-value="other">Other</div>
+                            </div>
+                            <input type="hidden" id="expense-category" name="expense-category" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="expense-date">Date</label>
@@ -905,16 +962,22 @@
                     </div>
                     <div class="form-group">
                         <label for="income-category">Category</label>
-                        <select id="income-category" required>
-                            <option value="">Select Category</option>
-                            <option value="salary">Salary</option>
-                            <option value="freelance">Freelance</option>
-                            <option value="investment">Investment</option>
-                            <option value="gift">Gift</option>
-                            <option value="business">Business</option>
-                            <option value="rental">Rental Income</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <div class="custom-select" id="income-category-select">
+                            <div class="custom-select-toggle" tabindex="0" aria-label="Select income category">
+                                <span class="custom-select-value">Select Category</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="salary">Salary</div>
+                                <div class="custom-select-option" data-value="freelance">Freelance</div>
+                                <div class="custom-select-option" data-value="investment">Investment</div>
+                                <div class="custom-select-option" data-value="gift">Gift</div>
+                                <div class="custom-select-option" data-value="business">Business</div>
+                                <div class="custom-select-option" data-value="rental">Rental Income</div>
+                                <div class="custom-select-option" data-value="other">Other</div>
+                            </div>
+                            <input type="hidden" id="income-category" name="income-category" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="income-date">Date</label>
@@ -973,19 +1036,25 @@
                 <form id="budget-form">
                     <div class="form-group">
                         <label for="budget-category">Category</label>
-                        <select id="budget-category" required>
-                            <option value="">Select Category</option>
-                            <option value="food">Food & Dining</option>
-                            <option value="transportation">Transportation</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="bills">Bills & Utilities</option>
-                            <option value="shopping">Shopping</option>
-                            <option value="health">Health & Fitness</option>
-                            <option value="education">Education</option>
-                            <option value="travel">Travel</option>
-                            <option value="housing">Housing</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <div class="custom-select" id="budget-category-select">
+                            <div class="custom-select-toggle" tabindex="0" aria-label="Select budget category">
+                                <span class="custom-select-value">Select Category</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option" data-value="food">Food & Dining</div>
+                                <div class="custom-select-option" data-value="transportation">Transportation</div>
+                                <div class="custom-select-option" data-value="entertainment">Entertainment</div>
+                                <div class="custom-select-option" data-value="bills">Bills & Utilities</div>
+                                <div class="custom-select-option" data-value="shopping">Shopping</div>
+                                <div class="custom-select-option" data-value="health">Health & Fitness</div>
+                                <div class="custom-select-option" data-value="education">Education</div>
+                                <div class="custom-select-option" data-value="travel">Travel</div>
+                                <div class="custom-select-option" data-value="housing">Housing</div>
+                                <div class="custom-select-option" data-value="other">Other</div>
+                            </div>
+                            <input type="hidden" id="budget-category" name="budget-category" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="budget-amount">Budget Amount (₹)</label>
@@ -1057,8 +1126,8 @@
             budgets = parsed.budgets || {};
             userName = parsed.userName || '';
             previousMonthData = parsed.previousMonthData || null;
-            currentMonth = parsed.currentMonth ?? new Date().getMonth();
-            currentYear = parsed.currentYear ?? new Date().getFullYear();
+            currentMonth = Number.isInteger(parsed.currentMonth) ? parsed.currentMonth : getISTDate().getMonth();
+            currentYear = Number.isInteger(parsed.currentYear) ? parsed.currentYear : getISTDate().getFullYear();
         }
     }
     function getIconForCategory(category) {
@@ -1187,7 +1256,7 @@
             const amountClass = transaction.amount < 0 ? 'negative' : 'positive';
             expenseItem.innerHTML = `
                 <div class="expense-icon">
-                    <i class="${transaction.icon}"></i>
+                    <i class="${transaction.icon || getIconForCategory(transaction.category)}"></i>
                 </div>
                 <div class="expense-details">
                     <div class="expense-name">${transaction.name}</div>
@@ -1304,7 +1373,7 @@
                 datasets: [{
                     data: data,
                     backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF5733', '#C70039', '#900C3F'
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF5733', '#C70039', '#900C3F', '#6D8299'
                     ]
                 }]
             },
@@ -1404,11 +1473,11 @@
         }
         renderTransactionList('all-expenses', filteredTransactions, true);
     }
-    function addTransaction(name, amount, category, date) {
+    function addTransaction(name, amount, category, date, description = '') {
         const id = transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1;
         const icon = getIconForCategory(category);
         const formattedDate = formatDate(new Date(date));
-        const newTransaction = { id, name, amount, category, date: formattedDate, icon };
+        const newTransaction = { id, name, amount, category, date: formattedDate, icon, description };
         transactions.push(newTransaction);
         balance += amount;
         if (amount > 0) {
@@ -1461,6 +1530,9 @@
         renderExpenseChart();
         renderCalendar();
         updateGreeting();
+        setDefaultDates();
+    }
+    function setDefaultDates() {
         const todayStr = getISTDate().toISOString().split('T')[0];
         document.getElementById('expense-date').value = todayStr;
         document.getElementById('income-date').value = todayStr;
@@ -1490,9 +1562,59 @@
     }
     function openModal(modalId) {
         document.getElementById(modalId).classList.add('active');
+        setDefaultDates();
+        if (modalId === 'expense-modal') {
+            resetCustomSelect('expense-category-select');
+        } else if (modalId === 'income-modal') {
+            resetCustomSelect('income-category-select');
+        } else if (modalId === 'budget-modal') {
+            resetCustomSelect('budget-category-select');
+        }
     }
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
+    }
+    function resetCustomSelect(selectId) {
+        const select = document.getElementById(selectId);
+        const toggle = select.querySelector('.custom-select-toggle .custom-select-value');
+        const hiddenInput = select.querySelector('input[type="hidden"]');
+        toggle.textContent = 'Select Category';
+        hiddenInput.value = '';
+        select.querySelectorAll('.custom-select-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+    }
+    function initializeCustomSelects() {
+        const selects = ['expense-category-select', 'income-category-select', 'budget-category-select'];
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            const toggle = select.querySelector('.custom-select-toggle');
+            const options = select.querySelector('.custom-select-options');
+            const hiddenInput = select.querySelector('input[type="hidden"]');
+            toggle.addEventListener('click', () => {
+                options.classList.toggle('active');
+            });
+            toggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    options.classList.toggle('active');
+                }
+            });
+            select.querySelectorAll('.custom-select-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    select.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    toggle.querySelector('.custom-select-value').textContent = option.textContent;
+                    hiddenInput.value = option.dataset.value;
+                    options.classList.remove('active');
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (!select.contains(e.target)) {
+                    options.classList.remove('active');
+                }
+            });
+        });
     }
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
@@ -1509,9 +1631,13 @@
         const name = document.getElementById('expense-name').value;
         const amount = parseFloat(document.getElementById('expense-amount').value);
         const category = document.getElementById('expense-category').value;
-        addTransaction(name, -amount, category, date);
+        const description = document.getElementById('expense-description').value;
+        if (!category) {
+            alert('Please select a category.');
+            return;
+        }
+        addTransaction(name, -amount, category, date, description);
         this.reset();
-        document.getElementById('expense-date').value = getISTDate().toISOString().split('T')[0];
         closeModal('expense-modal');
     });
     document.getElementById('income-form').addEventListener('submit', function(e) {
@@ -1524,15 +1650,22 @@
         const name = document.getElementById('income-name').value;
         const amount = parseFloat(document.getElementById('income-amount').value);
         const category = document.getElementById('income-category').value;
+        if (!category) {
+            alert('Please select a category.');
+            return;
+        }
         addTransaction(name, amount, category, date);
         this.reset();
-        document.getElementById('income-date').value = getISTDate().toISOString().split('T')[0];
         closeModal('income-modal');
     });
     document.getElementById('budget-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const category = document.getElementById('budget-category').value;
         const amount = parseFloat(document.getElementById('budget-amount').value);
+        if (!category) {
+            alert('Please select a category.');
+            return;
+        }
         if (amount > 0) {
             addBudget(category, amount);
             this.reset();
@@ -1546,6 +1679,7 @@
         document.getElementById('expense-chart').style.display = 'none';
     }
     loadFromLocalStorage();
+    initializeCustomSelects();
     updateUI();
     </script>
 </body>

@@ -1401,7 +1401,6 @@
             </div>
         </div>
     </div>
-
     <script>
         let balance = 0;
         let totalIncome = 0;
@@ -1416,7 +1415,6 @@
         let currentYear = new Date().getFullYear();
         let selectedDate = null;
         let previousMonthData = null;
-
         const categoryIcons = {
             food: 'fas fa-utensils',
             transportation: 'fas fa-car',
@@ -1462,10 +1460,6 @@
             }
         }
 
-        function getIconForCategory(category) {
-            return categoryIcons[category] || 'fas fa-question';
-        }
-
         function getISTDate() {
             return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
         }
@@ -1492,7 +1486,6 @@
             const currentDay = today.getDate();
             const newMonth = today.getMonth();
             const newYear = today.getFullYear();
-
             if (newMonth !== currentMonth || newYear !== currentYear) {
                 previousMonthData = {
                     balance,
@@ -1514,7 +1507,6 @@
                 saveToLocalStorage();
                 updateUI();
             }
-
             if (newMonth === 6 && newYear === 2025 && currentDay > 10 && previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025) {
                 previousMonthData = null;
                 saveToLocalStorage();
@@ -1526,7 +1518,6 @@
             const currentDay = today.getDate();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
-
             if (previousMonthData && previousMonthData.month === 5 && previousMonthData.year === 2025 && currentMonth === 6 && currentYear === 2025 && currentDay <= 10) {
                 const data = previousMonthData;
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1564,7 +1555,6 @@
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -1748,21 +1738,16 @@
                        transactionDate.getFullYear() === currentYear &&
                        t.amount < 0;
             });
-
             const categoryTotals = monthlyTransactions.reduce((acc, t) => {
                 acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount);
                 return acc;
             }, {});
-
             const labels = Object.keys(categoryTotals);
             const data = Object.values(categoryTotals);
-
             const ctx = document.getElementById('expense-chart').getContext('2d');
-
             if (expenseChart) {
                 expenseChart.destroy();
             }
-
             if (labels.length === 0) {
                 ctx.canvas.parentElement.innerHTML = `
                     <div class="empty-insights">
@@ -1772,7 +1757,6 @@
                 `;
                 return;
             }
-
             expenseChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -1824,21 +1808,16 @@
                        transactionDate.getFullYear() === currentYear &&
                        t.amount < 0;
             });
-
             const categoryTotals = monthlyTransactions.reduce((acc, t) => {
                 acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount);
                 return acc;
             }, {});
-
             const labels = Object.keys(categoryTotals);
             const data = Object.values(categoryTotals);
-
             const ctx = document.getElementById('category-trend-chart').getContext('2d');
-
             if (categoryTrendChart) {
                 categoryTrendChart.destroy();
             }
-
             if (labels.length === 0) {
                 ctx.canvas.parentElement.innerHTML = `
                     <div class="empty-insights">
@@ -1848,11 +1827,9 @@
                 `;
                 return;
             }
-
             const gradient = ctx.createLinearGradient(0, 0, 0, 200);
             gradient.addColorStop(0, 'var(--accent-blue)');
             gradient.addColorStop(1, 'var(--accent-purple)');
-
             categoryTrendChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -1937,23 +1914,17 @@
                        transactionDate.getFullYear() === currentYear &&
                        t.amount < 0;
             });
-
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const dailyTotals = Array(daysInMonth).fill(0);
-
             monthlyTransactions.forEach(t => {
                 const day = new Date(t.date === 'Today' ? getISTDate() : t.date).getDate() - 1;
                 dailyTotals[day] += Math.abs(t.amount);
             });
-
             const labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
-
             const ctx = document.getElementById('daily-spending-chart').getContext('2d');
-
             if (dailySpendingChart) {
                 dailySpendingChart.destroy();
             }
-
             if (dailyTotals.every(total => total === 0)) {
                 ctx.canvas.parentElement.innerHTML = `
                     <div class="empty-insights">
@@ -1963,11 +1934,9 @@
                 `;
                 return;
             }
-
             const gradient = ctx.createLinearGradient(0, 0, 0, 200);
             gradient.addColorStop(0, 'var(--accent-blue)');
             gradient.addColorStop(1, 'var(--accent-purple)');
-
             dailySpendingChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -2056,7 +2025,6 @@
                            t.amount > 0;
                 })
                 .reduce((total, t) => total + t.amount, 0);
-
             const monthlyExpenses = transactions
                 .filter(t => {
                     const transactionDate = new Date(t.date === 'Today' ? getISTDate() : t.date);
@@ -2065,14 +2033,12 @@
                            t.amount < 0;
                 })
                 .reduce((total, t) => total + Math.abs(t.amount), 0);
-
             const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
             const budgetAdherence = Object.keys(budgets).reduce((total, category) => {
                 const spent = calculateCategoryExpenses(category);
                 const budget = budgets[category];
                 return total + (budget > 0 ? Math.min(100, (budget - spent) / budget * 100) : 100);
             }, 0) / Math.max(Object.keys(budgets).length, 1);
-
             const categoryCount = new Set(transactions
                 .filter(t => {
                     const transactionDate = new Date(t.date === 'Today' ? getISTDate() : t.date);
@@ -2081,20 +2047,16 @@
                            t.amount < 0;
                 })
                 .map(t => t.category)).size;
-
             let score = 0;
             score += Math.min(savingsRate, 100) * 0.4;
             score += budgetAdherence * 0.4;
             score += Math.min(categoryCount * 10, 20);
-
             score = Math.min(Math.max(Math.round(score), 0), 100);
-
             const factors = [];
             if (savingsRate < 10) factors.push('Low savings rate');
             if (budgetAdherence < 80) factors.push('Budget overruns');
             if (categoryCount > 5) factors.push('Diverse spending');
             if (monthlyExpenses > monthlyIncome) factors.push('Overspending');
-
             let grade, message;
             if (score >= 80) {
                 grade = 'Excellent';
@@ -2109,7 +2071,6 @@
                 grade = 'Poor';
                 message = 'Significant improvements needed in financial management.';
             }
-
             return { score, grade, message, factors };
         }
 
@@ -2118,7 +2079,6 @@
             const currentDay = today.getDate();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const daysRemaining = daysInMonth - currentDay;
-
             const monthlyExpenses = transactions
                 .filter(t => {
                     const transactionDate = new Date(t.date === 'Today' ? getISTDate() : t.date);
@@ -2127,10 +2087,8 @@
                            t.amount < 0;
                 })
                 .reduce((total, t) => total + Math.abs(t.amount), 0);
-
             const dailyAverage = currentDay > 0 ? monthlyExpenses / currentDay : 0;
             const predictedTotal = monthlyExpenses + (dailyAverage * daysRemaining);
-
             return {
                 current: monthlyExpenses.toFixed(2),
                 predicted: predictedTotal.toFixed(2),
@@ -2144,11 +2102,9 @@
             const messageElement = document.getElementById('health-message');
             const factorsElement = document.getElementById('health-factors');
             const circleProgress = document.querySelector('.circle-progress');
-
             scoreElement.textContent = health.score;
             gradeElement.textContent = health.grade;
             messageElement.textContent = health.message;
-
             factorsElement.innerHTML = '';
             health.factors.forEach(factor => {
                 const factorElement = document.createElement('span');
@@ -2156,7 +2112,6 @@
                 factorElement.textContent = factor;
                 factorsElement.appendChild(factorElement);
             });
-
             const circle = document.querySelector('.score-circle');
             const radius = circle.clientWidth * 0.45;
             const circumference = 2 * Math.PI * radius;
@@ -2179,7 +2134,6 @@
             spinner.className = 'loading-spinner';
             spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Loading insights...</p>';
             document.getElementById('tab-ai').prepend(spinner);
-
             if (transactions.length === 0) {
                 document.querySelectorAll('#tab-ai .insights-section').forEach(section => {
                     section.innerHTML = `
@@ -2193,7 +2147,6 @@
                 spinner.remove();
                 return;
             }
-
             const health = calculateFinancialHealth();
             updateHealthScoreUI(health);
             const prediction = calculateMonthEndPrediction();
@@ -2207,13 +2160,10 @@
             const calendarDays = document.getElementById('calendar-days');
             const monthYear = document.getElementById('calendar-month-year');
             calendarDays.innerHTML = '';
-
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             dayNames.forEach(day => {
                 const dayElement = document.createElement('div');
@@ -2221,7 +2171,6 @@
                 dayElement.textContent = day;
                 calendarDays.appendChild(dayElement);
             });
-
             const transactionsByDate = transactions.reduce((acc, t) => {
                 const date = t.date === 'Today' ? getISTDate().toISOString().split('T')[0] : t.date;
                 if (!acc[date]) acc[date] = { total: 0, count: 0 };
@@ -2229,13 +2178,11 @@
                 acc[date].count += 1;
                 return acc;
             }, {});
-
             for (let i = 0; i < firstDay; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-date';
                 calendarDays.appendChild(emptyDay);
             }
-
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(currentYear, currentMonth, day);
                 const dateStr = date.toISOString().split('T')[0];
@@ -2276,7 +2223,7 @@
             saveToLocalStorage();
             updateUI();
         }
-        
+
         function updateUI() {
             document.getElementById('greeting-title').textContent = getGreeting();
             updateBalanceUI();
@@ -2300,7 +2247,7 @@
                 updateInsights();
             }
         }
-        
+
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
             if (modalId === 'expense-modal') {
@@ -2313,7 +2260,7 @@
                 document.getElementById('user-name').value = userName;
             }
         }
-        
+
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
             if (modalId === 'expense-modal') {
@@ -2326,7 +2273,7 @@
                 document.getElementById('budget-form').reset();
             }
         }
-        
+
         function saveUserName() {
             userName = document.getElementById('user-name').value.trim();
             if (userName) {
@@ -2338,7 +2285,7 @@
                 alert('Please enter a valid name.');
             }
         }
-        
+
         function resetData() {
             if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
                 balance = 0;
@@ -2355,7 +2302,7 @@
                 alert('All data has been reset.');
             }
         }
-        
+
         async function addExpense(name, amount, category, date, description) {
             const lowerName = name.toLowerCase();
             const autoCategory = category || (
@@ -2366,7 +2313,7 @@
                 lowerName.includes('shop') || lowerName.includes('clothes') ? 'shopping' :
                 lowerName.includes('health') || lowerName.includes('gym') ? 'health' : 'other'
             );
-        
+
             try {
                 const response = await fetch('/api/expenses', {
                     method: 'POST',
@@ -2406,7 +2353,7 @@
                 alert('Error adding expense');
             }
         }
-        
+
         async function addIncome(name, amount, category, date) {
             try {
                 const response = await fetch('/api/incomes', {
@@ -2445,7 +2392,7 @@
                 alert('Error adding income');
             }
         }
-        
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-page').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -2467,7 +2414,7 @@
             }
             updateUI();
         }
-        
+
         // Event Listeners
         document.getElementById('expense-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2482,7 +2429,7 @@
                 alert('Please fill in all required fields with valid values.');
             }
         });
-        
+
         document.getElementById('income-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('income-name').value.trim();
@@ -2495,7 +2442,7 @@
                 alert('Please fill in all required fields with valid values.');
             }
         });
-        
+
         document.getElementById('budget-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const category = document.getElementById('budget-category').value;
@@ -2507,13 +2454,13 @@
                 alert('Please select a category and enter a valid amount.');
             }
         });
-        
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadFromLocalStorage();
             checkAndResetData();
             updateUI();
         });
-        </script>
-        </body>
-        </html>
+    </script>
+</body>
+</html>

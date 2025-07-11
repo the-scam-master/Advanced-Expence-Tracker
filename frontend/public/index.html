@@ -584,7 +584,7 @@
         margin-bottom: 25px;
         display: flex;
         flex-direction: column;
-        align-items: center; /* Center the calendar horizontally */
+        align-items: center; /* Already present, ensuring it works */
         width: 100%;
     }
 
@@ -606,8 +606,9 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 5px;
-        width: 100%;
-        max-width: 550px; /* Adjust this value as needed */
+        width: 100%; /* Ensure it takes full container width */
+        max-width: 100%; /* Remove or adjust fixed max-width */
+        margin: 0 auto; /* Center the grid */
     }
     .calendar-day {
         text-align: center;
@@ -677,13 +678,20 @@
             width: 95%;
             bottom: 15px;
         }
-        .calendar-date {
-            padding: 8px;
-            min-height: 45px;
-        }
-        .calendar-expenses {
-            font-size: 9px;
-        }
+        .calendar-container {
+                padding: 15px;
+            }
+            .calendar-grid {
+                gap: 3px; /* Reduce gap on small screens */
+            }
+            .calendar-date {
+                padding: 6px;
+                min-height: 40px;
+                font-size: 11px; /* Slightly smaller text for better fit */
+            }
+            .calendar-expenses {
+                font-size: 8px; /* Adjust expense text size */
+            }
     }
     </style>
 </head>
